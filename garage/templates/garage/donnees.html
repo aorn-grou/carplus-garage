@@ -1,0 +1,48 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Sauvegarde et données{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1><span class="pic-titre grand t-vert">{% icone "shield-check" %}</span> Sauvegarde et données</h1>
+<div class="muted">{{ compte.clients }} clients · {{ compte.vehicules }} véhicules · {{ compte.reparations }} réparations · {{ compte.mouvements }} mouvements de caisse</div></div></div>
+
+<div class="grille g2">
+<div class="carte coul-vert"><h2><span class="pic-titre t-vert">{% icone "shield-check" %}</span> Sauvegarder maintenant</h2>
+<p>Copie complète : clients, véhicules, réparations, caisse, factures et photos. Une sauvegarde est aussi faite <b>automatiquement à chaque démarrage</b>.</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="sauvegarder"><button class="btn vert">{% icone "shield-check" %} Créer une sauvegarde</button></form>
+<p class="small muted" style="margin-top:10px">Conseil : chaque semaine, téléchargez la dernière sauvegarde et gardez-la sur une clé USB, hors du garage.</p></div>
+
+<div class="carte coul-rouge"><h2><span class="pic-titre t-rouge">{% icone "rotate-ccw" %}</span> Restaurer (en cas de problème)</h2>
+<p>Remet les données d'une sauvegarde : ordinateur changé, erreur importante, panne. <b>Les données actuelles sont remplacées</b>, mais une copie de sécurité est faite juste avant.</p>
+<form method="post" enctype="multipart/form-data" class="formulaire">{% csrf_token %}<input type="hidden" name="action" value="restaurer">
+<div class="champ"><label for="id_zip">Fichier de sauvegarde (.zip)</label><input id="id_zip" type="file" name="fichier" accept=".zip" required></div>
+<div class="champ"><label for="id_conf">Pour confirmer, tapez RESTAURER</label><input id="id_conf" type="text" name="confirmer" autocomplete="off" placeholder="RESTAURER" required></div>
+<button class="btn rouge">{% icone "rotate-ccw" %} Restaurer cette sauvegarde</button></form></div>
+</div>
+
+<div class="carte coul-bleu"><h2><span class="pic-titre t-rouge">{% icone "arrow-up-right" %}</span> Exporter (Excel)</h2>
+<p>Fichiers qui s'ouvrent directement dans Excel. Utile pour le comptable, ou pour garder une copie lisible.</p>
+<div class="tuiles">
+<a class="tuile" href="?exporter=clients">{% icone "users" %}<b>Clients et sociétés</b><span>{{ compte.clients }} lignes</span></a>
+<a class="tuile" href="?exporter=vehicules">{% icone "car" %}<b>Véhicules</b><span>{{ compte.vehicules }} lignes</span></a>
+<a class="tuile" href="?exporter=reparations">{% icone "wrench" %}<b>Réparations et factures</b><span>{{ compte.reparations }} lignes</span></a>
+<a class="tuile" href="?exporter=caisse">{% icone "wallet" %}<b>Caisse (entrées et sorties)</b><span>{{ compte.mouvements }} lignes</span></a>
+</div></div>
+
+<div class="carte coul-violet"><h2><span class="pic-titre t-vert">{% icone "arrow-down-left" %}</span> Importer depuis Excel</h2>
+<p>Pour ajouter d'un coup vos anciens clients et véhicules. Dans Excel : <b>Fichier › Enregistrer sous › CSV (séparateur : point-virgule)</b>. Les doublons sont ignorés, et une sauvegarde est faite avant chaque import.</p>
+<div class="grille g2">
+<form method="post" enctype="multipart/form-data" class="formulaire">{% csrf_token %}<input type="hidden" name="action" value="importer_clients">
+<h3>{% icone "users" %} Clients</h3>
+<div class="champ"><label for="id_ic">Fichier CSV des clients</label><input id="id_ic" type="file" name="fichier" accept=".csv,text/csv" required></div>
+<button class="btn prim">Importer les clients</button> <a class="btn petit" href="?modele=clients">{% icone "file-text" %} Modèle à remplir</a></form>
+<form method="post" enctype="multipart/form-data" class="formulaire">{% csrf_token %}<input type="hidden" name="action" value="importer_vehicules">
+<h3>{% icone "car" %} Véhicules</h3>
+<div class="champ"><label for="id_iv">Fichier CSV des véhicules</label><input id="id_iv" type="file" name="fichier" accept=".csv,text/csv" required></div>
+<button class="btn prim">Importer les véhicules</button> <a class="btn petit" href="?modele=vehicules">{% icone "file-text" %} Modèle à remplir</a></form>
+</div></div>
+
+<div class="carte"><h2><span class="pic-titre t-gris">{% icone "history" %}</span> Sauvegardes enregistrées sur cet ordinateur</h2>
+<div class="table-scroll"><table><tr><th>Date</th><th>Type</th><th class="num">Taille</th><th></th></tr>
+{% for s in sauvegardes %}<tr><td>{{ s.date|date:"d/m/Y H:i" }}</td><td class="small">{% if s.dossier == "avant_mise_a_jour" %}Avant mise à jour{% elif s.dossier == "avant_restauration" %}Avant restauration{% elif s.dossier == "avant_import" %}Avant import{% else %}Normale{% endif %}</td>
+<td class="num small">{{ s.taille|filesizeformat }}</td><td class="num"><a class="btn petit" href="?telecharger={{ s.nom|urlencode }}">{% icone "arrow-down-left" %} Télécharger</a></td></tr>
+{% empty %}<tr><td colspan="4" class="muted">Aucune sauvegarde pour l'instant.</td></tr>{% endfor %}</table></div>
+<p class="small muted" style="margin-top:8px">Dossier : <code>sauvegardes</code> dans le dossier CARPLUS. Les 30 plus récentes sont gardées.</p></div>
+{% endblock %}

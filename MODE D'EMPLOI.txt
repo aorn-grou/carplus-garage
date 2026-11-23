@@ -138,3 +138,13 @@ uniquement, dans le dossier CARPLUS :
 -----------------------------------
 En haut à droite, trois boutons : soleil (clair), écran (comme l'appareil),
 lune (sombre). Le choix est gardé sur chaque ordinateur ou tablette.
+
+
+11. SAUVEGARDE ET DONNÉES (menu Administration, réservé au patron)
+-----------------------------------------------------------------
+- « Créer une sauvegarde » : copie complète, téléchargeable ensuite.
+- « Restaurer » en cas de problème : choisir le fichier .zip, taper RESTAURER.
+  Les données d'avant sont gardées dans une copie de sécurité.
+- « Exporter (Excel) » : clients, véhicules, réparations, caisse.
+- « Importer depuis Excel » : anciens clients et véhicules (fichier CSV).
+  Un « Modèle à remplir » est proposé à côté de chaque bouton.

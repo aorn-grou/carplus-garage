@@ -1,6 +1,6 @@
 {% extends "garage/base.html" %}{% load carplus %}{% block titre %}À contacter{% endblock %}
 {% block contenu %}
-<div class="entete"><div><h1>{% icone "phone-call" %} Clients à contacter</h1>{% if client_filtre %}<div class="muted">Filtré : {{ client_filtre }} · <a href="?">tout voir</a></div>{% endif %}</div></div>
+<div class="entete"><div><h1><span class="pic-titre grand t-orange">{% icone "phone-call" %}</span> Clients à contacter</h1>{% if client_filtre %}<div class="muted">Filtré : {{ client_filtre }} · <a href="?">tout voir</a></div>{% endif %}</div></div>
 <div class="onglets"><a href="?vue=aujourdhui" class="{% if vue == 'aujourdhui' %}actif{% endif %}">Aujourd'hui et en retard</a><a href="?vue=avenir" class="{% if vue == 'avenir' %}actif{% endif %}">À venir</a><a href="?vue=faits" class="{% if vue == 'faits' %}actif{% endif %}">Déjà traités</a><a href="?vue=inactifs" class="{% if vue == 'inactifs' %}actif{% endif %}">Clients inactifs</a></div>
 {% if vue == "inactifs" %}<div class="carte"><h2>Clients sans visite depuis plus de {{ mois_inactif }} mois</h2><div class="table-scroll"><table><tr><th>Client</th><th>Téléphone</th><th>Dernière visite</th><th></th></tr>
 {% for c in inactifs %}<tr><td><a href="{{ c.get_absolute_url }}"><b>{{ c.nom }}</b></a></td><td>{{ c.telephone }}</td><td>{{ c.derniere|date:"d/m/Y"|default:"jamais" }}</td>
@@ -22,6 +22,6 @@
 <form method="post" action="{% url 'rappel_statut' r.pk %}" style="display:inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn-lien" name="action" value="annule">Supprimer cette alerte</button></form>
 </div>{% endif %}
 </div>{% empty %}{% if vue != "inactifs" %}<p class="muted">Personne à contacter.</p>{% endif %}{% endfor %}</div>
-<div class="carte no-print" style="max-width:760px" id="ajout"><h2>{% icone "plus" %} Ajouter une alerte</h2><form method="post" class="formulaire">{% csrf_token %}{{ form.as_p }}<button class="btn prim">Ajouter</button></form></div>
+<div class="carte no-print" style="max-width:760px" id="ajout"><h2><span class="pic-titre t-bleu">{% icone "plus" %}</span> Ajouter une alerte</h2><form method="post" class="formulaire">{% csrf_token %}{{ form.as_p }}<button class="btn prim">Ajouter</button></form></div>
 <p class="small muted">Le bouton du moyen préféré du client est mis en avant. « Appeler » et « SMS » utilisent le téléphone ou la tablette (sur un ordinateur, il faut une application d'appel). WhatsApp, Facebook et e-mail ont besoin d'Internet au moment de l'envoi. « Copier le message » permet de le coller où vous voulez (Facebook ne permet pas de pré-remplir le message).</p>
 {% endblock %}

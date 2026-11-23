@@ -50,6 +50,7 @@ urlpatterns = [
     path("alertes/<int:pk>/contact/", v.contact_ajout, name="contact_ajout"),
     path("historique/", v.journal, name="journal"),
     path("parametres/", v.parametres, name="parametres"),
+    path("donnees/", v.donnees_page, name="donnees"),
     # Photos : servies uniquement aux utilisateurs connectés (contrôle par le middleware)
     re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
 ]

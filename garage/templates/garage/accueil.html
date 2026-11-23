@@ -1,32 +1,32 @@
 {% extends "garage/base.html" %}{% load carplus %}{% block titre %}Tableau de bord{% endblock %}
 {% block contenu %}
-<div class="entete"><div><h1>{% icone "layout-dashboard" %} Tableau de bord</h1><div class="muted">{% now "l j F Y" %}</div></div>
+<div class="entete"><div><h1><span class="pic-titre grand t-bleu">{% icone "layout-dashboard" %}</span> Tableau de bord</h1><div class="muted">{% now "l j F Y" %}</div></div>
 <div><a class="btn rouge" href="{% url 'ordre_nouveau' %}">{% icone "plus" %} Réception d'un véhicule</a>
 {% if voit_argent %}<a class="btn" href="{% url 'depense_nouvelle' %}">{% icone "receipt" %} Dépense</a> <a class="btn" href="{% url 'caisse' %}">{% icone "banknote" %} Caisse rapide</a>{% endif %}</div></div>
 
 <div class="grille g4" style="margin-bottom:16px">
-  <div class="stat bleu"><div class="pic">{% icone "wrench" %}</div><div><div class="v">{{ en_cours|length }}</div><div class="l">Véhicules à l'atelier</div></div></div>
-  <div class="stat rouge"><div class="pic">{% icone "phone-call" %}</div><div><div class="v">{{ nb_alertes }}</div><div class="l">Clients à contacter aujourd'hui</div></div></div>
+  <div class="stat jaune"><div class="pic">{% icone "wrench" %}</div><div><div class="v">{{ en_cours|length }}</div><div class="l">Véhicules à l'atelier</div></div></div>
+  <div class="stat orange"><div class="pic">{% icone "phone-call" %}</div><div><div class="v">{{ nb_alertes }}</div><div class="l">Clients à contacter aujourd'hui</div></div></div>
   {% if voit_argent %}
   <div class="stat vert"><div class="pic">{% icone "arrow-down-left" %}</div><div><div class="v">{{ entrees_jour|ar }}</div><div class="l">Entrées aujourd'hui</div></div></div>
-  <div class="stat"><div class="pic">{% icone "arrow-up-right" %}</div><div><div class="v">{{ sorties_jour|ar }}</div><div class="l">Dépenses aujourd'hui</div></div></div>
+  <div class="stat rose"><div class="pic">{% icone "arrow-up-right" %}</div><div><div class="v">{{ sorties_jour|ar }}</div><div class="l">Dépenses aujourd'hui</div></div></div>
   {% endif %}
 </div>
 
 {% if retards %}<div class="alerte rouge"><b>{{ retards|length }} réparation{{ retards|length|pluralize }} en retard</b> (plus de {{ jours_retard }} jours à l'atelier) : {% for o in retards %}<a href="{{ o.get_absolute_url }}">{{ o.vehicule.immatriculation }} ({{ o.jours_atelier }} j{% if o.mecanicien %}, {{ o.mecanicien }}{% endif %})</a>{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}
 <div class="grille g2">
-<div class="carte"><h2>{% icone "wrench" %} Réparations en cours</h2>
+<div class="carte"><h2><span class="pic-titre t-jaune">{% icone "wrench" %}</span> Réparations en cours</h2>
 {% if en_cours %}<div class="table-scroll"><table><tr><th>Véhicule</th><th>Client</th><th>Statut</th><th>Mécanicien</th></tr>
 {% for o in en_cours %}<tr class="lien" data-href="{{ o.get_absolute_url }}"><td><b>{{ o.vehicule.immatriculation }}</b><div class="small muted">{{ o.vehicule.marque }} {{ o.vehicule.modele }}</div></td>
 <td>{{ o.client }}</td><td><span class="pastille {% if o.statut == 'pret' %}vert{% elif o.statut == 'attente_pieces' or o.statut == 'devis' %}orange{% endif %}">{{ o.get_statut_display }}</span></td><td class="small">{{ o.mecanicien|default:"—" }}</td></tr>{% endfor %}
 </table></div>{% else %}<p class="muted">Aucun véhicule à l'atelier.</p>{% endif %}
 </div>
-<div class="carte"><h2>{% icone "phone-call" %} À contacter aujourd'hui</h2>
+<div class="carte"><h2><span class="pic-titre t-orange">{% icone "phone-call" %}</span> À contacter aujourd'hui</h2>
 {% for r in rappels %}<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--bord)">
 <div><b>{{ r.client }}</b>{% if r.vehicule %} · {{ r.vehicule.immatriculation }}{% endif %}<div class="small muted">{{ r.motif }}{% if r.en_retard %} · <span style="color:var(--rouge)">en retard</span>{% endif %}</div></div>
 <a class="btn petit" href="{% url 'rappels' %}">Voir</a></div>
 {% empty %}<p class="muted">Personne à contacter aujourd'hui.</p>{% endfor %}
-{% if voit_argent and impayes %}<h2 style="margin-top:18px">{% icone "circle-alert" %} Factures impayées · {{ total_impayes|ar }}</h2>
+{% if voit_argent and impayes %}<h2 style="margin-top:18px"><span class="pic-titre t-rouge">{% icone "circle-alert" %}</span> Factures impayées · {{ total_impayes|ar }}</h2>
 {% for o in impayes %}<div style="display:flex;justify-content:space-between;padding:6px 0"><a href="{{ o.get_absolute_url }}">OR {{ o.numero }} · {{ o.client }}</a><b class="num" style="color:var(--rouge)">{{ o.reste|ar }}</b></div>{% endfor %}{% endif %}
 </div></div>
 {% endblock %}

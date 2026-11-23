@@ -16,25 +16,26 @@
   <nav class="side">
     <a class="logo-lien" href="{% url 'accueil' %}" aria-label="Tableau de bord">{% include "garage/_logo.html" %}</a>
     {% with u=request.resolver_match.url_name %}
-    <a class="nav {% if u == 'accueil' %}actif{% endif %}" href="{% url 'accueil' %}">{% icone "layout-dashboard" %}<span class="texte">Tableau de bord</span></a>
-    <a class="nav {% if u == 'rappels' %}actif{% endif %}" href="{% url 'rappels' %}">{% icone "phone-call" %}<span class="texte">À contacter</span> {% if nb_alertes %}<span class="badge">{{ nb_alertes }}</span>{% endif %}</a>
+    <a class="nav {% if u == 'accueil' %}actif{% endif %}" href="{% url 'accueil' %}"><span class="pic-nav" style="--c:#3aa0e8">{% icone "layout-dashboard" %}</span><span class="texte">Tableau de bord</span></a>
+    <a class="nav {% if u == 'rappels' %}actif{% endif %}" href="{% url 'rappels' %}"><span class="pic-nav" style="--c:#f97316">{% icone "phone-call" %}</span><span class="texte">À contacter</span> {% if nb_alertes %}<span class="badge">{{ nb_alertes }}</span>{% endif %}</a>
     <div class="sep">Atelier</div>
-    <a class="nav {% if u == 'ordre_nouveau' %}actif{% endif %}" href="{% url 'ordre_nouveau' %}">{% icone "clipboard-list" %}<span class="texte">Réception véhicule</span></a>
-    <a class="nav {% if u == 'ordres' or u == 'ordre_detail' %}actif{% endif %}" href="{% url 'ordres' %}">{% icone "wrench" %}<span class="texte">Réparations</span></a>
+    <a class="nav {% if u == 'ordre_nouveau' %}actif{% endif %}" href="{% url 'ordre_nouveau' %}"><span class="pic-nav" style="--c:#a78bfa">{% icone "clipboard-list" %}</span><span class="texte">Réception véhicule</span></a>
+    <a class="nav {% if u == 'ordres' or u == 'ordre_detail' %}actif{% endif %}" href="{% url 'ordres' %}"><span class="pic-nav" style="--c:#facc15">{% icone "wrench" %}</span><span class="texte">Réparations</span></a>
     <div class="sep">Clients</div>
-    <a class="nav {% if u == 'clients' or u == 'client_detail' %}actif{% endif %}" href="{% url 'clients' %}">{% icone "users" %}<span class="texte">Clients et sociétés</span></a>
-    <a class="nav {% if u == 'vehicules' or u == 'vehicule_detail' %}actif{% endif %}" href="{% url 'vehicules' %}">{% icone "car" %}<span class="texte">Registre des véhicules</span></a>
+    <a class="nav {% if u == 'clients' or u == 'client_detail' %}actif{% endif %}" href="{% url 'clients' %}"><span class="pic-nav" style="--c:#22c55e">{% icone "users" %}</span><span class="texte">Clients et sociétés</span></a>
+    <a class="nav {% if u == 'vehicules' or u == 'vehicule_detail' %}actif{% endif %}" href="{% url 'vehicules' %}"><span class="pic-nav" style="--c:#38bdf8">{% icone "car" %}</span><span class="texte">Registre des véhicules</span></a>
     {% if voit_argent %}
     <div class="sep">Argent</div>
-    <a class="nav {% if u == 'caisse' %}actif{% endif %}" href="{% url 'caisse' %}">{% icone "wallet" %}<span class="texte">Caisse</span></a>
-    <a class="nav {% if u == 'depenses' or u == 'depense_nouvelle' or u == 'depense_detail' %}actif{% endif %}" href="{% url 'depenses' %}">{% icone "receipt" %}<span class="texte">Dépenses</span></a>
+    <a class="nav {% if u == 'caisse' %}actif{% endif %}" href="{% url 'caisse' %}"><span class="pic-nav" style="--c:#10b981">{% icone "wallet" %}</span><span class="texte">Caisse</span></a>
+    <a class="nav {% if u == 'depenses' or u == 'depense_nouvelle' or u == 'depense_detail' %}actif{% endif %}" href="{% url 'depenses' %}"><span class="pic-nav" style="--c:#fb7185">{% icone "receipt" %}</span><span class="texte">Dépenses</span></a>
     {% endif %}
     {% if est_patron %}
     <div class="sep">Administration</div>
-    <a class="nav {% if u == 'journal' %}actif{% endif %}" href="{% url 'journal' %}">{% icone "history" %}<span class="texte">Historique des modifications</span></a>
-    <a class="nav {% if u == 'parametres' %}actif{% endif %}" href="{% url 'parametres' %}">{% icone "settings" %}<span class="texte">Paramètres</span></a>
-    <a class="nav" href="/admin/garage/typeentretien/">{% icone "list-checks" %}<span class="texte">Types d'entretien</span></a>
-    <a class="nav" href="/admin/auth/user/">{% icone "user-cog" %}<span class="texte">Utilisateurs</span></a>
+    <a class="nav {% if u == 'journal' %}actif{% endif %}" href="{% url 'journal' %}"><span class="pic-nav" style="--c:#94a3b8">{% icone "history" %}</span><span class="texte">Historique des modifications</span></a>
+    <a class="nav {% if u == 'parametres' %}actif{% endif %}" href="{% url 'parametres' %}"><span class="pic-nav" style="--c:#cbd5e1">{% icone "settings" %}</span><span class="texte">Paramètres</span></a>
+    <a class="nav {% if u == 'donnees' %}actif{% endif %}" href="{% url 'donnees' %}"><span class="pic-nav" style="--c:#4ade80">{% icone "shield-check" %}</span><span class="texte">Sauvegarde et données</span></a>
+    <a class="nav" href="/admin/garage/typeentretien/"><span class="pic-nav" style="--c:#2dd4bf">{% icone "list-checks" %}</span><span class="texte">Types d'entretien</span></a>
+    <a class="nav" href="/admin/auth/user/"><span class="pic-nav" style="--c:#c084fc">{% icone "user-cog" %}</span><span class="texte">Utilisateurs</span></a>
     {% endif %}
     {% endwith %}
     <div class="version">{{ p.nom|default:"CAR SERVICE PLUS" }} · version {{ version }}</div>

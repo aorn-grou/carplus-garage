@@ -9,7 +9,7 @@
 <div class="stat rouge"><div class="v">{{ total_du|ar }}</div><div class="l">Reste à payer</div></div>{% endif %}
 </div>
 <div class="grille g2">
-<div class="carte"><h2>{% icone "user" %} Coordonnées <span class="small muted">(cliquez sur une valeur pour la modifier)</span></h2>
+<div class="carte"><h2><span class="pic-titre t-vert">{% icone "user" %}</span> Coordonnées <span class="small muted">(cliquez sur une valeur pour la modifier)</span></h2>
 <dl class="fiche">
 <dt>Nom</dt><dd>{% editable c "client" "nom" %}</dd>
 <dt>Téléphone</dt><dd>{% editable c "client" "telephone" %}</dd>
@@ -28,13 +28,13 @@
 <h3 style="margin-top:14px">Historique des contacts</h3>
 {% for k in contacts %}<div class="small" style="padding:4px 0;border-bottom:1px solid var(--bord)">{{ k.date|date:"d/m/Y H:i" }} · {{ k.get_canal_display }} · <b>{{ k.get_resultat_display }}</b>{% if k.note %} — {{ k.note }}{% endif %} <span class="muted">({{ k.par|default:"—" }})</span></div>{% empty %}<p class="small muted">Aucun contact enregistré.</p>{% endfor %}
 </div>
-<div class="carte"><h2>{% icone "car" %} Véhicules ({{ vehicules|length }})</h2>
+<div class="carte"><h2><span class="pic-titre t-bleu">{% icone "car" %}</span> Véhicules ({{ vehicules|length }})</h2>
 {% for v in vehicules %}<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bord)"><a href="{{ v.get_absolute_url }}"><b>{{ v.immatriculation }}</b> · {{ v.marque }} {{ v.modele }} {{ v.annee|default:"" }}</a><a class="btn petit" href="{% url 'ordre_nouveau' %}?vehicule={{ v.pk }}">Réception</a></div>
 {% empty %}<p class="muted">Aucun véhicule.</p>{% endfor %}
 {% if vehicules|length > 1 %}<form method="post" action="{% url 'rappels_groupes' c.pk %}" style="margin-top:14px" class="no-print">{% csrf_token %}
 <label>Alerte pour tous ses véhicules</label><div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" name="motif" placeholder="Ex. : visite d'entretien de la flotte" style="flex:2;min-width:180px"><input type="date" name="date" style="flex:1;min-width:140px"><button class="btn">Créer</button></div></form>{% endif %}
 </div></div>
-<div class="carte"><h2>{% icone "wrench" %} Réparations</h2><div class="table-scroll"><table><tr><th>N°</th><th>Date</th><th>Véhicule</th><th>Statut</th>{% if voit_argent %}<th class="num">Total</th><th class="num">Reste à payer</th>{% endif %}</tr>
+<div class="carte"><h2><span class="pic-titre t-jaune">{% icone "wrench" %}</span> Réparations</h2><div class="table-scroll"><table><tr><th>N°</th><th>Date</th><th>Véhicule</th><th>Statut</th>{% if voit_argent %}<th class="num">Total</th><th class="num">Reste à payer</th>{% endif %}</tr>
 {% for o in ordres %}<tr class="lien" data-href="{{ o.get_absolute_url }}"><td>{{ o.numero }}</td><td>{{ o.date_reception|date:"d/m/Y" }}</td><td>{{ o.vehicule.immatriculation }}</td><td>{{ o.get_statut_display }}</td>{% if voit_argent %}<td class="num">{{ o.total|ar }}</td><td class="num">{% if o.reste > 0 %}<b style="color:var(--rouge)">{{ o.reste|ar }}</b>{% else %}—{% endif %}</td>{% endif %}</tr>
 {% empty %}<tr><td colspan="6" class="muted">Aucune réparation.</td></tr>{% endfor %}</table></div></div>
 {% endblock %}

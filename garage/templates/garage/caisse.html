@@ -1,6 +1,6 @@
 {% extends "garage/base.html" %}{% load carplus %}{% block titre %}Caisse{% endblock %}
 {% block contenu %}
-<div class="entete"><div><h1>{% icone "wallet" %} Caisse</h1><div class="muted">{{ libelle }}</div></div>
+<div class="entete"><div><h1><span class="pic-titre grand t-vert">{% icone "wallet" %}</span> Caisse</h1><div class="muted">{{ libelle }}</div></div>
 <div style="display:flex;gap:6px;align-items:center"><a class="btn petit" href="?periode={{ periode }}&date={{ prec|date:'Y-m-d' }}" aria-label="Période précédente">◀</a><a class="btn petit" href="?periode={{ periode }}">Aujourd'hui</a><a class="btn petit" href="?periode={{ periode }}&date={{ suiv|date:'Y-m-d' }}" aria-label="Période suivante">▶</a></div></div>
 <div class="onglets">{% for code, nom in periodes %}<a href="?periode={{ code }}{% if date_ref %}&date={{ date_ref }}{% endif %}" class="{% if periode == code %}actif{% endif %}">{{ nom }}</a>{% endfor %}</div>
 <div class="grille g3" style="margin-bottom:16px">
@@ -8,28 +8,28 @@
 <div class="stat rouge"><div class="v">{{ total_s|ar }}</div><div class="l">Dépenses (avec facture : {{ avec_facture|ar }} · sans : {{ sans_facture|ar }})</div></div>
 <div class="stat"><div class="v" style="color:{% if solde < 0 %}var(--rouge){% else %}var(--nuit){% endif %}">{{ solde|ar }}</div><div class="l">Solde de la période</div></div></div>
 
-{% if barres %}<div class="carte"><h2>{% icone "gauge" %} Entrées et dépenses</h2>
+{% if barres %}<div class="carte"><h2><span class="pic-titre t-bleu">{% icone "gauge" %}</span> Entrées et dépenses</h2>
 <div class="barres">{% for b in barres %}<div class="barre" title="{{ b.label }} — entrées {{ b.e|ar }}, dépenses {{ b.s|ar }}"><div class="duo"><div class="e" style="height:{{ b.he }}%"></div><div class="s" style="height:{{ b.hs }}%"></div></div></div>{% endfor %}</div>
 <div class="etiquettes">{% for b in barres %}<span>{{ b.label }}</span>{% endfor %}</div>
 <div class="legende"><span><i style="background:var(--vert)"></i>Entrées</span><span><i style="background:var(--rouge)"></i>Dépenses</span></div></div>{% endif %}
 
 <div class="grille g2">
-<div class="carte no-print"><h2>{% icone "banknote" %} Caisse rapide</h2>
+<div class="carte no-print"><h2><span class="pic-titre t-vert">{% icone "banknote" %}</span> Caisse rapide</h2>
 <form method="post" class="formulaire">{% csrf_token %}
 <div class="champ">{{ form.sens }}</div>
 <div class="grille g2"><div class="champ"><label>Montant (Ar)</label>{{ form.montant }}</div><div class="champ"><label>Mode</label>{{ form.mode }}</div></div>
 <div class="champ"><label>Pour quoi ?</label>{{ form.libelle }}</div>
 <button class="btn prim">Enregistrer</button>
 <div class="small muted" style="margin-top:8px">Une sortie rapide devient un bon interne (sans facture). Pour une dépense avec facture, utilisez « Dépenses ».</div></form></div>
-<div class="carte"><h2>{% icone "list-checks" %} Répartition</h2>
+<div class="carte"><h2><span class="pic-titre t-turquoise">{% icone "list-checks" %}</span> Répartition</h2>
 <h3>Entrées par mode</h3>{% for nom, s in par_mode %}<div style="display:flex;justify-content:space-between"><span>{{ nom }}</span><b class="num">{{ s|ar }}</b></div>{% empty %}<p class="muted small">Aucune entrée.</p>{% endfor %}
 <h3 style="margin-top:14px">Dépenses par catégorie</h3>{% for nom, s in par_cat %}<div style="display:flex;justify-content:space-between"><span>{{ nom }}</span><b class="num">{{ s|ar }}</b></div>{% empty %}<p class="muted small">Aucune dépense.</p>{% endfor %}</div></div>
 
 <div class="grille g2">
-<div class="carte"><h2>{% icone "arrow-down-left" %} Entrées</h2><div class="table-scroll"><table><tr><th>Date</th><th>Libellé</th><th class="num">Montant</th></tr>
+<div class="carte"><h2><span class="pic-titre t-vert">{% icone "arrow-down-left" %}</span> Entrées</h2><div class="table-scroll"><table><tr><th>Date</th><th>Libellé</th><th class="num">Montant</th></tr>
 {% for p in entrees %}<tr {% if p.ordre %}class="lien" data-href="{{ p.ordre.get_absolute_url }}"{% endif %}><td class="small">{{ p.date|date:"d/m H:i" }}</td><td>{{ p.libelle }} <span class="muted small">{{ p.get_mode_display }}</span></td><td class="num">{{ p.montant|ar }}</td></tr>
 {% empty %}<tr><td colspan="3" class="muted">Aucune entrée.</td></tr>{% endfor %}</table></div></div>
-<div class="carte"><h2>{% icone "arrow-up-right" %} Sorties</h2><div class="table-scroll"><table><tr><th>Date</th><th>Motif</th><th class="num">Montant</th></tr>
+<div class="carte"><h2><span class="pic-titre t-rouge">{% icone "arrow-up-right" %}</span> Sorties</h2><div class="table-scroll"><table><tr><th>Date</th><th>Motif</th><th class="num">Montant</th></tr>
 {% for d in sorties %}<tr class="lien" data-href="{% url 'depense_detail' d.pk %}"><td class="small">{{ d.date|date:"d/m H:i" }}</td><td>{{ d.motif }} {% if d.avec_facture %}<span class="pastille vert">facture</span>{% else %}<span class="pastille orange">{{ d.numero_bon }}</span>{% endif %}</td><td class="num">{{ d.montant|ar }}</td></tr>
 {% empty %}<tr><td colspan="3" class="muted">Aucune sortie.</td></tr>{% endfor %}</table></div></div></div>
 {% endblock %}

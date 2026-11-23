@@ -70,6 +70,7 @@ MENUS = [
     ("Clients inactifs", "rappels", "inactifs fidélisation relance anciens clients", None),
     ("Campagne (véhicules de plus de 5 ans…)", "vehicules", "campagne promotion offre ciblée âge", None),
     ("Historique des modifications", "journal", "historique journal modifications", (PATRON,)),
+    ("Sauvegarde et données", "donnees", "sauvegarde sauvegarder restaurer restauration exporter export importer import excel csv données problème", (PATRON,)),
     ("Paramètres du garage", "parametres", "paramètres parametres nif stat logo facture", (PATRON,)),
 ]
 
@@ -855,3 +856,78 @@ def premier_demarrage(request):
         messages.success(request, "Bienvenue ! Votre compte est créé. Créez ensuite les comptes de vos employés dans « Utilisateurs ».")
         return redirect("accueil")
     return render(request, "garage/premier_demarrage.html", {"gform": gform, "uform": uform})
+
+
+# ---------------------------------------------------------------- Sauvegarde et données (patron)
+@exige(PATRON)
+def donnees_page(request):
+    from . import donnees as D
+    from .models import Client, Depense, OrdreReparation, Paiement, Vehicule
+    from django.http import FileResponse
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "sauvegarder":
+            f = D.creer_sauvegarde()
+            messages.success(request, f"Sauvegarde créée : {f.name}. Copiez-la aussi sur une clé USB.") if f else \
+                messages.warning(request, "Aucune donnée à sauvegarder pour l'instant.")
+        elif action == "restaurer":
+            fichier = request.FILES.get("fichier")
+            if request.POST.get("confirmer") != "RESTAURER":
+                messages.error(request, "Pour restaurer, tapez le mot RESTAURER dans la case de confirmation.")
+            elif not fichier:
+                messages.error(request, "Choisissez le fichier .zip de la sauvegarde.")
+            else:
+                try:
+                    secu = D.restaurer(fichier)
+                except (D.SauvegardeInvalide, zipfile_err()) as e:
+                    messages.error(request, f"Restauration impossible : {e}")
+                else:
+                    Journal.objects.create(utilisateur=None, objet="données", objet_id=0, champ="restauration",
+                                           nouvelle=fichier.name)
+                    messages.success(request, "Données restaurées. Une copie des données d'avant a été gardée"
+                                     + (f" ({secu.name})." if secu else ".") + " Reconnectez-vous si nécessaire.")
+        elif action in ("importer_clients", "importer_vehicules"):
+            fichier = request.FILES.get("fichier")
+            if not fichier:
+                messages.error(request, "Choisissez un fichier CSV.")
+            else:
+                D.creer_sauvegarde(D.DOSSIER / "avant_import")
+                try:
+                    crees, ignores = (D.importer_clients if action == "importer_clients" else D.importer_vehicules)(fichier)
+                except Exception as e:  # fichier illisible
+                    messages.error(request, f"Fichier illisible : {e}. Enregistrez-le en « CSV (séparateur : point-virgule) ».")
+                else:
+                    messages.success(request, f"{crees} ligne(s) importée(s)."
+                                     + (f" {len(ignores)} ignorée(s) : " + " ; ".join(ignores[:8]) if ignores else ""))
+        return redirect("donnees")
+    if request.GET.get("telecharger"):
+        nom = request.GET["telecharger"]
+        for s in D.liste_sauvegardes():
+            if s["nom"] == nom:
+                return FileResponse(open(s["chemin"], "rb"), as_attachment=True, filename=nom)
+        raise PermissionDenied
+    if request.GET.get("exporter"):
+        quoi = request.GET["exporter"]
+        try:
+            contenu = D.exporter(quoi)
+        except KeyError:
+            raise PermissionDenied
+        r = HttpResponse(contenu, content_type="text/csv; charset=utf-8")
+        r["Content-Disposition"] = f'attachment; filename="carplus_{quoi}_{timezone.localdate():%Y-%m-%d}.csv"'
+        return r
+    if request.GET.get("modele") in D.MODELES:
+        nom, contenu = D.modele(request.GET["modele"])
+        r = HttpResponse(contenu, content_type="text/csv; charset=utf-8")
+        r["Content-Disposition"] = f'attachment; filename="{nom}"'
+        return r
+    return render(request, "garage/donnees.html", {
+        "sauvegardes": D.liste_sauvegardes(),
+        "compte": {"clients": Client.objects.count(), "vehicules": Vehicule.objects.count(),
+                   "reparations": OrdreReparation.objects.count(),
+                   "mouvements": Paiement.objects.count() + Depense.objects.count()},
+    })
+
+
+def zipfile_err():
+    import zipfile
+    return zipfile.BadZipFile

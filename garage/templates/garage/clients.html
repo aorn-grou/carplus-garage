@@ -1,6 +1,6 @@
 {% extends "garage/base.html" %}{% load carplus %}{% block titre %}Clients{% endblock %}
 {% block contenu %}
-<div class="entete"><h1>{% icone "users" %} Clients et sociétés</h1><a class="btn prim" href="{% url 'client_nouveau' %}">{% icone "plus" %} Nouveau client</a></div>
+<div class="entete"><h1><span class="pic-titre grand t-vert">{% icone "users" %}</span> Clients et sociétés</h1><a class="btn prim" href="{% url 'client_nouveau' %}">{% icone "plus" %} Nouveau client</a></div>
 <div class="onglets"><a href="?" class="{% if not type %}actif{% endif %}">Tous</a><a href="?type=particulier" class="{% if type == 'particulier' %}actif{% endif %}">Particuliers</a><a href="?type=societe" class="{% if type == 'societe' %}actif{% endif %}">Sociétés</a></div>
 <div class="carte"><div class="table-scroll"><table><tr><th>Nom</th><th>Type</th><th>Téléphone</th><th class="num">Véhicules</th></tr>
 {% for c in clients %}<tr class="lien" data-href="{{ c.get_absolute_url }}"><td><b>{{ c.nom }}</b></td><td>{{ c.get_type_display }}</td><td>{{ c.telephone }}</td><td class="num">{{ c.nb_vehicules }}</td></tr>

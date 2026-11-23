@@ -435,3 +435,83 @@ class NomUtilisateurTests(TestCase):
                                                      "u-password2": "Garage-2026!x"})
         self.assertContains(r, "Pas d&#x27;espace dans le nom d&#x27;utilisateur")
         self.assertFalse(User.objects.exists())
+
+
+@override_settings(MEDIA_ROOT=MEDIA)
+class DonneesTests(Base):
+    def setUp(self):
+        super().setUp()
+        import tempfile as _t
+        from pathlib import Path as _P
+        from . import donnees as D
+        self._dossier = D.DOSSIER
+        D.DOSSIER = _P(_t.mkdtemp())
+
+    def tearDown(self):
+        from . import donnees as D
+        shutil.rmtree(D.DOSSIER, ignore_errors=True)
+        D.DOSSIER = self._dossier
+
+    def test_page_reservee_au_patron(self):
+        self.assertEqual(self.client.get("/donnees/").status_code, 200)
+        self.client.login(username="caisse", password="secret123")
+        self.assertEqual(self.client.get("/donnees/").status_code, 403)
+
+    def test_exports_csv(self):
+        OrdreReparation.objects.create(vehicule=self.v, client=self.cli, probleme="Vidange")
+        Paiement.objects.create(montant=5000, libelle="x")
+        for q in ("clients", "vehicules", "reparations", "caisse"):
+            r = self.client.get(f"/donnees/?exporter={q}")
+            self.assertEqual(r.status_code, 200, q)
+            self.assertIn("attachment", r["Content-Disposition"])
+        self.assertIn("1234TBA", self.client.get("/donnees/?exporter=vehicules").content.decode("utf-8"))
+
+    def test_import_clients_et_vehicules(self):
+        csv_c = "Type;Nom;Téléphone\nSociété;Garage Ami;0340000001\nParticulier;Rakoto;0341234567\n".encode("cp1252")
+        r = self.client.post("/donnees/", {"action": "importer_clients",
+                                          "fichier": SimpleUploadedFile("c.csv", csv_c, content_type="text/csv")}, follow=True)
+        self.assertContains(r, "1 ligne(s) importée(s)")          # Rakoto existe déjà
+        self.assertEqual(Client.objects.get(nom="Garage Ami").type, "societe")
+        csv_v = "Immatriculation;Marque;Modèle;Année;Propriétaire\n9999 TBB;Nissan;Navara;2017;Garage Ami\n1234 TBA;Toyota;Hilux;;Rakoto\n"
+        r = self.client.post("/donnees/", {"action": "importer_vehicules",
+                                          "fichier": SimpleUploadedFile("v.csv", csv_v.encode("utf-8-sig"), content_type="text/csv")}, follow=True)
+        self.assertContains(r, "1 ligne(s) importée(s)")
+        self.assertEqual(Vehicule.objects.get(immatriculation="9999TBB").proprietaire.nom, "Garage Ami")
+
+    def test_sauvegarde_puis_restauration(self):
+        """Mécanisme complet sur une base SQLite séparée (la base de test Django reste intacte)."""
+        import sqlite3 as sq
+        import tempfile as _t
+        from pathlib import Path as _P
+        from unittest import mock
+        from . import donnees as D
+        base = _P(_t.mkdtemp()) / "base.sqlite3"
+        with sq.connect(base) as c:
+            c.execute("CREATE TABLE garage_client (id INTEGER PRIMARY KEY, nom TEXT)")
+            c.execute("INSERT INTO garage_client (nom) VALUES ('Rakoto'), ('Rasoa')")
+        c.close()
+        with mock.patch.dict(D.settings.DATABASES["default"], {"NAME": base}), \
+                mock.patch.object(D.connection, "close", lambda: None):
+            f = D.creer_sauvegarde()
+            self.assertTrue(f and f.exists())
+            with sq.connect(base) as c:
+                c.execute("DELETE FROM garage_client")
+            c.close()
+            with open(f, "rb") as z:
+                D.restaurer(z)
+        with sq.connect(base) as c:
+            self.assertEqual(c.execute("SELECT count(*) FROM garage_client").fetchone()[0], 2)
+        c.close()
+        self.assertTrue(list((D.DOSSIER / "avant_restauration").glob("*.zip")))
+
+    def test_restauration_refuse_mauvais_fichier(self):
+        import io as _io, zipfile as _z
+        buf = _io.BytesIO()
+        with _z.ZipFile(buf, "w") as z:
+            z.writestr("autre.txt", "x")
+        r = self.client.post("/donnees/", {"action": "restaurer", "confirmer": "RESTAURER",
+                                          "fichier": SimpleUploadedFile("x.zip", buf.getvalue())}, follow=True)
+        self.assertContains(r, "pas une sauvegarde CAR PLUS")
+        r = self.client.post("/donnees/", {"action": "restaurer", "confirmer": "non",
+                                          "fichier": SimpleUploadedFile("x.zip", buf.getvalue())}, follow=True)
+        self.assertContains(r, "tapez le mot RESTAURER")
