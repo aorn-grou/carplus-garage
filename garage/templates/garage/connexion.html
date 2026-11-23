@@ -1,0 +1,13 @@
+{% load static %}<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connexion · CAR PLUS</title><script>try{var t=localStorage.getItem("carplus-theme");if(t==="clair"||t==="sombre")document.documentElement.dataset.theme=t;}catch(e){}</script>
+<link rel="stylesheet" href="{% static 'garage/style.css' %}"><link rel="icon" href="{% static 'garage/icone.svg' %}"></head>
+<body><div class="connexion"><div class="carte">
+<div style="text-align:center;margin-bottom:16px">{% include "garage/_logo.html" %}
+<div class="muted">Logiciel de gestion du garage</div></div>
+<form method="post" class="formulaire">{% csrf_token %}
+{% if form.errors %}<ul class="messages"><li class="error">Nom d'utilisateur ou mot de passe incorrect.</li></ul>{% endif %}
+<p><label for="id_username">Nom d'utilisateur</label><input type="text" name="username" id="id_username" autofocus autocapitalize="none" required></p>
+<p><label for="id_password">Mot de passe</label><input type="password" name="password" id="id_password" required></p>
+<input type="hidden" name="next" value="{{ next }}">
+<button class="btn prim" style="width:100%;justify-content:center;padding:12px">Se connecter</button>
+</form></div></div></body></html>

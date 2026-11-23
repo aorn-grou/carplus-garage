@@ -1,0 +1,105 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}OR {{ o.numero }}{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1>Réparation {{ o.numero }} <span class="pastille {% if o.statut == 'pret' or o.statut == 'livre' %}vert{% elif o.statut == 'annule' %}rouge{% else %}orange{% endif %}">{{ o.get_statut_display }}</span></h1>
+<div class="muted"><a href="{{ o.vehicule.get_absolute_url }}"><b>{{ o.vehicule.immatriculation }}</b> · {{ o.vehicule.marque }} {{ o.vehicule.modele }}</a> · Client : <a href="{{ o.client.get_absolute_url }}">{{ o.client }}</a> · reçu le {{ o.date_reception|date:"d/m/Y à H:i" }}</div></div>
+{% if voit_argent %}<div class="no-print"><a class="btn" target="_blank" href="{% url 'facture' o.pk %}?doc=or">{% icone "printer" %} Imprimer OR</a> <a class="btn" target="_blank" href="{% url 'facture' o.pk %}?doc=devis">{% icone "file-text" %} Devis</a> <a class="btn prim" target="_blank" href="{% url 'facture' o.pk %}?doc=facture">{% if o.numero_facture %}Facture {{ o.numero_facture }}{% else %}Facture{% endif %}</a> <a class="btn" target="_blank" href="{% url 'facture' o.pk %}?doc=rapport">{% icone "file-check" %} Rapport client</a> <a class="btn" target="_blank" href="{% url 'facture' o.pk %}?doc=depenses">{% icone "receipt" %} État de dépense</a></div>{% endif %}</div>
+
+<div class="carte no-print"><h2>{% icone "clock" %} Changer le statut</h2>
+<form method="post" action="{% url 'ordre_statut' o.pk %}" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">{% csrf_token %}
+{% for code, nom in statuts %}{% if code != o.statut %}{% if code == 'livre' %}{% else %}<button class="btn petit {% if code == 'annule' %}rouge{% endif %}" name="statut" value="{{ code }}">{{ nom }}</button>{% endif %}{% endif %}{% endfor %}
+</form><div class="small muted" style="margin-top:6px">« Prêt à livrer » et « Devis à valider » ajoutent le client dans « À contacter » aujourd'hui.</div>
+{% if o.statut != 'livre' and o.statut != 'annule' %}
+<form method="post" action="{% url 'ordre_statut' o.pk %}" style="margin-top:14px;border-top:1px solid var(--bord);padding-top:12px">{% csrf_token %}
+<h3>{% icone "circle-check" %} Livrer le véhicule</h3><p class="small muted" style="margin-top:-4px">C'est vous qui choisissez les dates. Laissez vide si rien n'est prévu. Le logiciel vous préviendra à la date choisie.</p>
+<div class="grille g3">
+<div class="champ"><label>Le client doit revenir le</label><input type="date" name="date_retour" min="{{ aujourdhui|date:'Y-m-d' }}"><input type="text" name="motif_retour" placeholder="Pour quoi ? (ex. : vidange, contrôle des freins)" style="margin-top:6px"></div>
+{% if o.travaux_refuses %}<div class="champ"><label>Relancer pour les travaux refusés le</label><input type="date" name="date_relance_refus" min="{{ aujourdhui|date:'Y-m-d' }}"><span class="helptext">{{ o.travaux_refuses|truncatechars:80 }}</span></div>{% endif %}
+{% if voit_argent and o.reste > 0 %}<div class="champ"><label>Relancer pour le paiement le</label><input type="date" name="date_relance_paiement" min="{{ aujourdhui|date:'Y-m-d' }}"><span class="helptext">Reste à payer : {{ o.reste|ar }}</span></div>{% endif %}
+</div><button class="btn vert" name="statut" value="livre">Livrer le véhicule</button></form>{% endif %}</div>
+
+{% if o.lie_a %}<div class="alerte {% if o.nature_lien == 'garantie' or o.nature_lien == 'meme' %}rouge{% else %}orange{% endif %}"><b>{{ o.get_nature_lien_display }}</b> — lié à la <a href="{{ o.lie_a.get_absolute_url }}">réparation {{ o.lie_a.numero }} du {{ o.lie_a.date_reception|date:"d/m/Y" }}</a> : {{ o.lie_a.probleme|truncatechars:100 }}</div>{% endif %}
+{% for s in o.suites.all %}<div class="alerte orange">Une réparation suivante est liée à celle-ci : <a href="{{ s.get_absolute_url }}">{{ s.numero }} du {{ s.date_reception|date:"d/m/Y" }}</a> ({{ s.get_nature_lien_display }}).</div>{% endfor %}
+
+<div class="carte" id="antecedents"><h2>{% icone "history" %} Antécédents de ce véhicule</h2>
+{% if ant.meme_partie %}<div class="alerte rouge"><b>Même partie déjà réparée :</b><ul style="margin:4px 0 0;padding-left:18px">
+{% for a in ant.meme_partie %}<li><a href="{{ a.ordre.get_absolute_url }}">{{ a.ordre.date_reception|date:"d/m/Y" }} (OR {{ a.ordre.numero }})</a> — {{ a.systemes|join:", " }} — il y a {{ a.jours }} jours{% if a.km != None %}, {{ a.km|nombre }} km{% endif %}<div class="small">{{ a.ordre.probleme|truncatechars:110 }}{% if a.ordre.travaux %} → {{ a.ordre.travaux|truncatechars:110 }}{% endif %}</div></li>{% endfor %}</ul></div>{% endif %}
+{% if ant.pieces %}<div class="alerte rouge"><b>Pièce déjà changée sur ce véhicule</b> (vérifier la garantie) :<ul style="margin:4px 0 0;padding-left:18px">
+{% for a in ant.pieces %}<li>{{ a.piece }} — <a href="{{ a.ordre.get_absolute_url }}">le {{ a.ordre.date_reception|date:"d/m/Y" }}</a>, il y a {{ a.jours }} jours{% if a.km != None %} et {{ a.km|nombre }} km{% endif %}</li>{% endfor %}</ul></div>{% endif %}
+{% if ant.surveiller %}<div class="alerte orange"><b>À surveiller (conseillé lors des visites précédentes) :</b><ul style="margin:4px 0 0;padding-left:18px">
+{% for x in ant.surveiller %}<li><a href="{{ x.get_absolute_url }}">{{ x.date_reception|date:"d/m/Y" }}</a> — {% if x.travaux_refuses %}<b>refusé/reporté :</b> {{ x.travaux_refuses }}{% if x.risque %} <i>— risque : {{ x.risque }}</i>{% endif %}{% endif %}{% if x.recommandations %} <b>conseillé :</b> {{ x.recommandations }}{% endif %}</li>{% endfor %}</ul></div>{% endif %}
+{% if ant.vide %}<p class="muted small">Rien de particulier dans l'historique pour cette réparation{% if not mes_systemes %} (cochez les parties touchées pour que le logiciel compare){% endif %}.</p>{% endif %}
+<div class="grille g2 no-print" style="margin-top:12px">
+<form method="post" action="{% url 'ordre_systemes' o.pk %}">{% csrf_token %}<label>Parties touchées par cette réparation</label>
+<div class="cases">{% for s in tous_systemes %}<label><input type="checkbox" name="systemes" value="{{ s.pk }}" {% if s.pk in mes_systemes %}checked{% endif %}> {{ s.nom }}</label>{% endfor %}</div>
+<button class="btn petit" style="margin-top:8px">Enregistrer les parties</button></form>
+<form method="post" action="{% url 'ordre_lien' o.pk %}">{% csrf_token %}<label>Cette panne est-elle liée à une réparation précédente ?</label>
+<select name="lie_a" style="margin-bottom:8px"><option value="">— non —</option>{% for p in precedents %}<option value="{{ p.pk }}" {% if o.lie_a_id == p.pk %}selected{% endif %}>{{ p.date_reception|date:"d/m/Y" }} · {{ p.numero }} · {{ p.probleme|truncatechars:50 }}</option>{% endfor %}</select>
+<select name="nature_lien" style="margin-bottom:8px">{% for code, nom in liens %}<option value="{{ code }}" {% if o.nature_lien == code %}selected{% endif %}>{{ nom }}</option>{% endfor %}</select>
+<button class="btn petit">Enregistrer le lien</button></form></div></div>
+
+<div class="grille g2">
+<div class="carte"><h2>{% icone "clipboard-list" %} Fiche de visite <span class="small muted">(cliquez pour écrire)</span></h2><dl class="fiche">
+<dt>Kilométrage</dt><dd>{% editable o "ordre" "kilometrage" %} km</dd>
+<dt>Carburant</dt><dd>{{ o.get_niveau_carburant_display|default:"—" }}</dd>
+<dt>Déposé par</dt><dd>{% editable o "ordre" "deposant" %}</dd>
+<dt>Objets dans le véhicule</dt><dd>{% editable o "ordre" "accessoires" %}</dd>
+<dt>Carrosserie à l'arrivée</dt><dd>{% editable o "ordre" "etat_carrosserie" %}</dd>
+<dt>Mécanicien</dt><dd>{{ o.mecanicien|default:"—" }}</dd>
+<dt>Problème signalé</dt><dd>{% editable o "ordre" "probleme" %}</dd>
+<dt>Diagnostic</dt><dd>{% editable o "ordre" "diagnostic" %}</dd>
+<dt>Cause trouvée</dt><dd>{% editable o "ordre" "cause" %}</dd>
+<dt>Travaux réalisés</dt><dd>{% editable o "ordre" "travaux" %}</dd>
+<dt>Conseillé pour plus tard</dt><dd>{% editable o "ordre" "recommandations" %}</dd>
+<dt>Refusé / reporté par le client</dt><dd>{% editable o "ordre" "travaux_refuses" %}</dd>
+<dt>Risque si non fait</dt><dd>{% editable o "ordre" "risque" %}</dd></dl>
+<p class="small muted">« Refusé / reporté » et « Risque » seront rappelés à chaque prochaine visite de ce véhicule. À la livraison, vous pourrez choisir une date pour recontacter le client.</p></div>
+<div>
+<div class="carte" id="notes"><h2>{% icone "notebook-pen" %} Notes de la visite</h2>
+{% for n in notes %}<div style="padding:6px 0;border-bottom:1px solid var(--bord)"><div class="small muted">{{ n.date|date:"d/m/Y H:i" }} · {{ n.auteur|default:"—" }}</div>{{ n.texte|linebreaksbr }}</div>{% empty %}<p class="muted small">Aucune note.</p>{% endfor %}
+<form method="post" action="{% url 'note_ajout' o.pk %}" class="no-print" style="margin-top:8px">{% csrf_token %}{{ note_form.texte }}<button class="btn petit prim" style="margin-top:6px">Ajouter la note</button></form></div>
+<div class="carte"><h2>{% icone "timer" %} Temps de travail · {{ o.minutes_travail }} min</h2>
+<form method="post" action="{% url 'pointage' o.pk %}" class="no-print">{% csrf_token %}{% if pointage_ouvert %}<button class="btn rouge">{% icone "timer" %} Arrêter mon travail (en cours depuis {{ pointage_ouvert.debut|date:"H:i" }})</button>{% else %}<button class="btn vert">{% icone "timer" %} Démarrer mon travail</button>{% endif %}</form>
+{% for p in pointages %}<div class="small muted">{{ p.mecanicien }} · {{ p.debut|date:"d/m H:i" }} → {% if p.fin %}{{ p.fin|date:"H:i" }}{% else %}en cours{% endif %} · {{ p.minutes }} min</div>{% endfor %}
+<div class="small muted" style="margin-top:6px">À l'atelier depuis {{ o.jours_atelier }} jour{{ o.jours_atelier|pluralize }}.</div></div>
+</div></div>
+
+<div class="carte" id="carnet"><h2>{% icone "list-checks" %} Carnet d'entretien : ce qui a été fait et quand le refaire</h2>
+{% if entretiens %}<table><tr><th>Entretien</th><th>Fait à</th><th>À refaire</th></tr>{% for e in entretiens %}<tr><td>{{ e.designation }}</td><td>{{ e.fait_km|nombre|default:"—" }} km</td><td>{% if e.prochain_km %}{{ e.prochain_km|nombre }} km{% endif %}{% if e.prochain_km and e.prochaine_date %} ou {% endif %}{% if e.prochaine_date %}le {{ e.prochaine_date|date:"d/m/Y" }}{% endif %}{% if not e.prochain_km and not e.prochaine_date %}<span class="pastille orange">pas d'échéance</span>{% endif %}</td></tr>{% endfor %}</table>{% endif %}
+<form method="post" action="{% url 'entretien_ajout' o.vehicule.pk %}" class="no-print" style="margin-top:10px">{% csrf_token %}<input type="hidden" name="ordre" value="{{ o.pk }}">
+<div class="grille g3"><div class="champ"><label>Entretien fait</label>{{ entretien_form.type }}</div><div class="champ"><label>ou autre</label>{{ entretien_form.autre }}</div><div class="champ"><label>Fait à (km)</label>{{ entretien_form.fait_km }}</div>
+<div class="champ"><label>Le client doit revenir le</label>{{ entretien_form.prochaine_date }}</div><div class="champ"><label>ou à … km au compteur</label>{{ entretien_form.prochain_km }}</div><div class="champ"><label>Fait le</label>{{ entretien_form.fait_le }}</div></div>
+<button class="btn prim">Ajouter au carnet</button> <span class="small muted">Vous choisissez la date et/ou le km de retour. Le logiciel vous prévient quand l'échéance approche (la première atteinte).</span></form></div>
+
+<div>
+<div class="carte" id="photos"><h2>{% icone "camera" %} Photos des dégâts ({{ photos|length }})</h2>
+<div class="photos">{% for p in photos %}<a href="{{ p.image.url }}" target="_blank"><img src="{{ p.image.url }}" alt="{{ p.legende }}" loading="lazy"><span>{{ p.legende|default:p.ajoute_le|date:"d/m/Y" }}</span></a>{% endfor %}</div>
+<form method="post" enctype="multipart/form-data" action="{% url 'photo_ajout' o.pk %}" class="no-print" style="margin-top:12px">{% csrf_token %}
+<div class="champ"><input type="file" name="image" accept="image/*" capture="environment" required></div>
+<div style="display:flex;gap:8px"><input type="text" name="legende" placeholder="Ex. : rayure portière avant gauche"><button class="btn prim">Ajouter</button></div></form></div>
+</div>
+
+<div class="carte" id="lignes"><h2>{% icone "wrench" %} Pièces et main-d'œuvre</h2>
+<div class="table-scroll"><table><tr><th>Type</th><th>Désignation</th><th class="num">Qté</th>{% if voit_argent %}<th class="num">Prix unitaire</th><th class="num">Total</th><th></th>{% endif %}</tr>
+{% for l in lignes %}<tr><td>{{ l.get_type_display }}</td><td>{% if voit_argent %}{% editable l "ligne" "designation" %}{% else %}{{ l.designation }}{% endif %}</td>
+<td class="num">{% if voit_argent %}{% editable l "ligne" "quantite" %}{% else %}{{ l.quantite|nombre }}{% endif %}</td>
+{% if voit_argent %}<td class="num">{% editable l "ligne" "prix_unitaire" %}</td><td class="num">{% if l.prix_unitaire %}{{ l.total|ar }}{% else %}<span class="muted">inclus</span>{% endif %}</td>
+<td><form method="post" action="{% url 'ligne_suppr' l.pk %}" onsubmit="return confirm('Supprimer cette ligne ?')">{% csrf_token %}<button class="btn-lien" title="Supprimer" aria-label="Supprimer la ligne">{% icone "trash-2" %}</button></form></td>{% endif %}</tr>
+{% empty %}<tr><td colspan="6" class="muted">Aucune ligne. Ajoutez les pièces et la main-d'œuvre ci-dessous.</td></tr>{% endfor %}</table></div>
+<form method="post" action="{% url 'ligne_ajout' o.pk %}" class="ligne-form no-print" style="margin-top:12px">{% csrf_token %}
+<div>{{ ligne_form.type }}</div><div>{{ ligne_form.designation }}</div><div>{{ ligne_form.quantite }}</div>
+{% if voit_argent %}<div>{{ ligne_form.prix_unitaire }}</div>{% else %}<div></div>{% endif %}<button class="btn prim">Ajouter</button></form>
+{% if voit_argent %}<div style="margin-top:16px">{% include "garage/_totaux.html" %}</div>{% endif %}
+</div>
+
+{% if voit_argent %}<div class="grille g2">
+<div class="carte" id="paiements"><h2>{% icone "hand-coins" %} Paiements du client</h2>
+{% for p in paiements %}<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bord)"><span>{{ p.date|date:"d/m/Y H:i" }} · {{ p.get_mode_display }}</span><b class="num">{{ p.montant|ar }}</b></div>
+{% empty %}<p class="muted">Aucun paiement.</p>{% endfor %}
+<form method="post" action="{% url 'paiement_ajout' o.pk %}" class="no-print" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">{% csrf_token %}
+<div style="flex:1;min-width:140px">{{ paiement_form.montant }}</div><div style="flex:1;min-width:140px">{{ paiement_form.mode }}</div><button class="btn vert">Encaisser</button></form></div>
+<div class="carte"><h2>{% icone "receipt" %} Achats de pièces pour cette réparation</h2>
+{% for d in depenses %}<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bord)"><a href="{% url 'depense_detail' d.pk %}">{{ d.motif }} <span class="muted small">{{ d.fournisseur }}</span>{% if d.photo %} {% icone "camera" %}{% endif %}</a><b class="num">{{ d.montant|ar }}</b></div>
+{% empty %}<p class="muted">Aucun achat lié.</p>{% endfor %}
+<a class="btn no-print" style="margin-top:12px" href="{% url 'depense_nouvelle' %}?ordre={{ o.pk }}">+ Achat de pièce (avec photo de facture)</a></div>
+</div>{% endif %}
+{% endblock %}

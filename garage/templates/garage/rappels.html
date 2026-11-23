@@ -1,0 +1,27 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}À contacter{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1>{% icone "phone-call" %} Clients à contacter</h1>{% if client_filtre %}<div class="muted">Filtré : {{ client_filtre }} · <a href="?">tout voir</a></div>{% endif %}</div></div>
+<div class="onglets"><a href="?vue=aujourdhui" class="{% if vue == 'aujourdhui' %}actif{% endif %}">Aujourd'hui et en retard</a><a href="?vue=avenir" class="{% if vue == 'avenir' %}actif{% endif %}">À venir</a><a href="?vue=faits" class="{% if vue == 'faits' %}actif{% endif %}">Déjà traités</a><a href="?vue=inactifs" class="{% if vue == 'inactifs' %}actif{% endif %}">Clients inactifs</a></div>
+{% if vue == "inactifs" %}<div class="carte"><h2>Clients sans visite depuis plus de {{ mois_inactif }} mois</h2><div class="table-scroll"><table><tr><th>Client</th><th>Téléphone</th><th>Dernière visite</th><th></th></tr>
+{% for c in inactifs %}<tr><td><a href="{{ c.get_absolute_url }}"><b>{{ c.nom }}</b></a></td><td>{{ c.telephone }}</td><td>{{ c.derniere|date:"d/m/Y"|default:"jamais" }}</td>
+<td>{% if c.accepte_rappels %}{% include "garage/_contacter.html" with msg="Bonjour, ici le garage CAR PLUS. Cela fait longtemps ! Votre véhicule a-t-il besoin d'un entretien ?" %}{% endif %} <a class="btn petit" href="?client={{ c.pk }}#ajout">Créer une alerte</a></td></tr>
+{% empty %}<tr><td colspan="4" class="muted">Aucun client inactif.</td></tr>{% endfor %}</table></div></div>{% endif %}
+<div class="carte">
+{% for r in rappels %}<div id="rappel-{{ r.pk }}" style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--bord);flex-wrap:wrap">
+<div style="min-width:240px;flex:1"><b><a href="{{ r.client.get_absolute_url }}">{{ r.client }}</a></b>{% if r.vehicule %} · <a href="{{ r.vehicule.get_absolute_url }}">{{ r.vehicule.immatriculation }}</a>{% endif %}
+<div>{% editable r "rappel" "motif" %}</div>{% if r.note %}<div class="small muted">{{ r.note }}</div>{% endif %}<div class="small muted">Prévu le {% editable r "rappel" "date_prevue" %}{% if r.en_retard %} · <b style="color:var(--rouge)">en retard</b>{% endif %} · {{ r.client.telephone }}{% if not r.client.accepte_rappels %} · <b style="color:var(--rouge)">ne souhaite pas être relancé</b>{% endif %}{% if r.statut != 'a_faire' %} · {{ r.get_statut_display }}{% endif %}</div></div>
+{% if r.statut == 'a_faire' %}<div style="flex:2;min-width:300px">
+{% if r.client.accepte_rappels %}{% include "garage/_contacter.html" with c=r.client msg=r.message %}{% else %}<div class="small" style="color:var(--rouge)">Ce client ne souhaite pas être relancé.</div>{% endif %}
+<div class="small muted" style="margin:4px 0">Préfère : <b>{{ r.client.get_canal_prefere_display }}</b>{% with dernier=r.contacts.first %}{% if dernier %} · dernier essai : {{ dernier.date|date:"d/m H:i" }}, {{ dernier.get_canal_display }}, {{ dernier.get_resultat_display }}{% endif %}{% endwith %}</div>
+<form method="post" action="{% url 'contact_ajout' r.pk %}" class="resultat-contact">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<select name="canal" aria-label="Moyen utilisé">{% for code, nom in canaux %}<option value="{{ code }}" {% if code == r.client.canal_prefere %}selected{% endif %}>{{ nom }}</option>{% endfor %}</select>
+<select name="resultat" aria-label="Résultat">{% for code, nom in resultats %}<option value="{{ code }}">{{ nom }}</option>{% endfor %}</select>
+<input type="text" name="note" placeholder="Note (facultatif)">
+<input type="date" name="date" title="Si pas de réponse ou à rappeler : nouvelle date (facultatif)">
+<button class="btn prim petit">Enregistrer le contact</button></form>
+<form method="post" action="{% url 'rappel_statut' r.pk %}" style="display:inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="btn-lien" name="action" value="annule">Supprimer cette alerte</button></form>
+</div>{% endif %}
+</div>{% empty %}{% if vue != "inactifs" %}<p class="muted">Personne à contacter.</p>{% endif %}{% endfor %}</div>
+<div class="carte no-print" style="max-width:760px" id="ajout"><h2>{% icone "plus" %} Ajouter une alerte</h2><form method="post" class="formulaire">{% csrf_token %}{{ form.as_p }}<button class="btn prim">Ajouter</button></form></div>
+<p class="small muted">Le bouton du moyen préféré du client est mis en avant. « Appeler » et « SMS » utilisent le téléphone ou la tablette (sur un ordinateur, il faut une application d'appel). WhatsApp, Facebook et e-mail ont besoin d'Internet au moment de l'envoi. « Copier le message » permet de le coller où vous voulez (Facebook ne permet pas de pré-remplir le message).</p>
+{% endblock %}

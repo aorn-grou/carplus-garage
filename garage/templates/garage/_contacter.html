@@ -1,0 +1,10 @@
+{% load carplus %}{# Boutons de contact : c = client, msg = message prêt #}
+<div class="contacts">
+{% if c.telephone %}<a class="btn petit {% if c.canal_prefere == 'appel' %}prefere{% endif %}" href="tel:{{ c.telephone }}" title="Appeler {{ c.telephone }}">{% icone "phone-call" %} Appeler</a>{% endif %}
+{% if c.telephone2 %}<a class="btn petit" href="tel:{{ c.telephone2 }}" title="{{ c.telephone2 }}">{% icone "phone-call" %} N° 2</a>{% endif %}
+{% if c.telephone %}<a class="btn petit {% if c.canal_prefere == 'sms' %}prefere{% endif %}" href="sms:{{ c.telephone }}?body={{ msg|urlencode }}">{% icone "message-circle" %} SMS</a>{% endif %}
+{% if c.numero_whatsapp %}<a class="btn petit {% if c.canal_prefere == 'whatsapp' %}prefere{% endif %}" target="_blank" href="https://wa.me/{{ c.numero_whatsapp }}?text={{ msg|urlencode }}">{% icone "send" %} WhatsApp</a>{% endif %}
+{% if c.lien_facebook %}<a class="btn petit {% if c.canal_prefere == 'facebook' %}prefere{% endif %}" target="_blank" href="{{ c.lien_facebook }}" onclick="copierMessage(this)" data-message="{{ msg }}">{% icone "facebook" %} Facebook / Messenger</a>{% endif %}
+{% if c.email %}<a class="btn petit {% if c.canal_prefere == 'email' %}prefere{% endif %}" href="mailto:{{ c.email }}?subject={{ 'Garage CAR PLUS'|urlencode }}&body={{ msg|urlencode }}">{% icone "mail" %} E-mail</a>{% endif %}
+<button type="button" class="btn petit" onclick="copierMessage(this)" data-message="{{ msg }}">{% icone "copy" %} Copier le message</button>
+</div>

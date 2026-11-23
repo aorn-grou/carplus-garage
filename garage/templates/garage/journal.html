@@ -1,0 +1,5 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Historique{% endblock %}
+{% block contenu %}<h1>{% icone "history" %} Historique des modifications</h1><p class="muted">Toutes les modifications sont enregistrées : qui, quand, avant, après.</p>
+<div class="carte"><div class="table-scroll"><table><tr><th>Date</th><th>Utilisateur</th><th>Élément</th><th>Champ</th><th>Avant</th><th>Après</th></tr>
+{% for l in lignes %}<tr><td class="small">{{ l.date|date:"d/m/Y H:i" }}</td><td>{{ l.utilisateur|default:"—" }}</td><td>{{ l.objet }} #{{ l.objet_id }}</td><td>{{ l.champ }}</td><td class="small muted">{{ l.ancienne|truncatechars:80 }}</td><td class="small">{{ l.nouvelle|truncatechars:80 }}</td></tr>
+{% empty %}<tr><td colspan="6" class="muted">Aucune modification.</td></tr>{% endfor %}</table></div></div>{% endblock %}

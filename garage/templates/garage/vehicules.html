@@ -1,0 +1,17 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Véhicules{% endblock %}
+{% block contenu %}
+<div class="entete"><h1>{% icone "car" %} Registre des véhicules</h1><a class="btn prim" href="{% url 'vehicule_nouveau' %}">{% icone "plus" %} Nouveau véhicule</a></div>
+<div class="onglets"><a href="?" class="{% if not categorie %}actif{% endif %}">Tous</a>{% for code, nom in categories %}<a href="?categorie={{ code }}" class="{% if categorie == code %}actif{% endif %}">{{ nom }}s</a>{% endfor %}</div>
+<form class="carte no-print" method="get" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
+<input type="hidden" name="categorie" value="{{ categorie|default:'' }}">
+<div><label>Recherche</label><input type="text" name="q" value="{{ q }}" placeholder="plaque, marque, propriétaire"></div>
+<div><label>Marque</label><select name="marque"><option value="">Toutes</option>{% for m in marques %}<option {% if m == marque %}selected{% endif %}>{{ m }}</option>{% endfor %}</select></div>
+<div><label>Âge du véhicule</label><select name="age"><option value="">Tous</option><option value="3" {% if age == "3" %}selected{% endif %}>3 ans et plus</option><option value="5" {% if age == "5" %}selected{% endif %}>5 ans et plus</option><option value="10" {% if age == "10" %}selected{% endif %}>10 ans et plus</option><option value="15" {% if age == "15" %}selected{% endif %}>15 ans et plus</option></select></div>
+<button class="btn">Filtrer</button></form>
+{% if age or marque or q %}<form method="post" class="carte no-print" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;background:var(--orange-clair)">{% csrf_token %}
+<div style="flex:2;min-width:220px"><label>Campagne : contacter les {{ vehicules|length }} propriétaires de cette liste</label><input type="text" name="motif" required placeholder="Ex. : offre spéciale courroie de distribution"></div>
+<div><label>Le</label><input type="date" name="date"></div><button class="btn rouge">{% icone "megaphone" %} Créer la campagne</button></form>{% endif %}
+<div class="carte"><div class="table-scroll"><table><tr><th>Immatriculation</th><th>Véhicule</th><th>Année</th><th>Propriétaire</th><th class="num">Km</th></tr>
+{% for v in vehicules %}<tr class="lien" data-href="{{ v.get_absolute_url }}"><td><b>{{ v.immatriculation }}</b></td><td>{{ v.marque }} {{ v.modele }} <span class="muted small">{{ v.get_categorie_display }}</span></td><td>{{ v.annee|default:"" }}</td><td>{{ v.proprietaire }}</td><td class="num">{{ v.kilometrage }}</td></tr>
+{% empty %}<tr><td colspan="5" class="muted">Aucun véhicule.</td></tr>{% endfor %}</table></div></div>
+{% endblock %}

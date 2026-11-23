@@ -1,0 +1,8 @@
+{% if q|length >= 2 %}
+{% if menus %}<div class="res-groupe"><h4>Menus</h4>{% for nom, url in menus %}<a href="{{ url }}">→ {{ nom }}</a>{% endfor %}</div>{% endif %}
+{% if vehicules %}<div class="res-groupe"><h4>Véhicules</h4>{% for v in vehicules %}<a href="{{ v.get_absolute_url }}"><b>{{ v.immatriculation }}</b> · {{ v.marque }} {{ v.modele }} <span class="muted">— {{ v.proprietaire }}</span></a>{% endfor %}</div>{% endif %}
+{% if clients %}<div class="res-groupe"><h4>Clients</h4>{% for c in clients %}<a href="{{ c.get_absolute_url }}"><b>{{ c.nom }}</b> <span class="muted">{{ c.get_type_display }} · {{ c.telephone }}</span></a>{% endfor %}</div>{% endif %}
+{% if ordres %}<div class="res-groupe"><h4>Réparations</h4>{% for o in ordres %}<a href="{{ o.get_absolute_url }}"><b>OR {{ o.numero }}</b> · {{ o.vehicule.immatriculation }} <span class="muted">— {{ o.get_statut_display }}</span></a>{% endfor %}</div>{% endif %}
+{% if depenses %}<div class="res-groupe"><h4>Dépenses</h4>{% for d in depenses %}<a href="{% url 'depense_detail' d.pk %}">{{ d.motif }} <span class="muted">— {{ d.date|date:"d/m/Y" }}</span></a>{% endfor %}</div>{% endif %}
+{% if vide %}<div class="res-groupe"><a class="muted">Aucun résultat pour « {{ q }} »</a></div>{% endif %}
+{% endif %}

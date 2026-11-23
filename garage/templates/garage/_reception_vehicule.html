@@ -1,0 +1,10 @@
+{% load carplus %}{% if vehicule %}<div class="carte" style="border-left:4px solid var(--vert)"><h2>{% icone "circle-check" %} Véhicule connu : {{ vehicule.immatriculation }}</h2>
+{% include "garage/_antecedents_resume.html" %}</div>
+{% elif immat|length >= 3 %}<div class="carte" style="border-left:4px solid var(--orange)"><h2>{% icone "plus" %} Nouveau véhicule : {{ immat }}</h2>
+<p class="small muted" style="margin-top:-6px">Ce véhicule n'est pas encore enregistré : remplissez ces champs, il sera créé en même temps que la réception.</p>
+<div class="grille g3"><div class="champ"><label>Catégorie</label>{{ form.categorie }}</div><div class="champ"><label>Marque *</label>{{ form.marque }}</div><div class="champ"><label>Modèle *</label>{{ form.modele }}</div>
+<div class="champ"><label>Année</label>{{ form.annee }}</div><div class="champ"><label>Carburant</label>{{ form.carburant }}</div><div class="champ"><label>VIN / n° de cadre</label>{{ form.vin }}</div></div>
+<h3>Propriétaire</h3><div class="grille g2"><div class="champ"><label>Déjà client ?</label>{{ form.client_existant }}</div><div></div>
+<div class="champ"><label>Sinon, nom du nouveau propriétaire</label>{{ form.client_nom }}</div><div class="grille g2" style="gap:8px"><div class="champ"><label>Type</label>{{ form.client_type }}</div><div class="champ"><label>Téléphone</label>{{ form.client_telephone }}</div></div>
+<div class="champ"><label>Facebook (facultatif)</label>{{ form.client_facebook }}</div></div></div>
+{% endif %}

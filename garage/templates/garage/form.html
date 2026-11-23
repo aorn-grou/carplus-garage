@@ -1,0 +1,8 @@
+{% extends "garage/base.html" %}{% block titre %}{{ titre }}{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1>{{ titre }}</h1>{% if aide %}<div class="muted">{{ aide }}</div>{% endif %}</div></div>
+<div class="carte" style="max-width:760px">
+<form method="post" enctype="multipart/form-data" class="formulaire">{% csrf_token %}
+{{ form.as_p }}
+<button class="btn prim">Enregistrer</button> <a class="btn" href="javascript:history.back()">Annuler</a>
+</form></div>{% endblock %}

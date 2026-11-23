@@ -1,0 +1,14 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Réparations{% endblock %}
+{% block contenu %}
+<div class="entete"><h1>{% icone "wrench" %} Réparations (atelier)</h1><a class="btn rouge" href="{% url 'ordre_nouveau' %}">{% icone "plus" %} Réception d'un véhicule</a></div>
+<div class="kanban">
+{% for code, nom, liste in colonnes %}<div class="col"><h3><span>{{ nom }}</span><span>{{ liste|length }}</span></h3>
+{% for o in liste %}<a class="ticket" href="{{ o.get_absolute_url }}" style="{% if code == 'pret' %}border-left-color:var(--vert){% elif code == 'attente_pieces' or code == 'devis' %}border-left-color:var(--orange){% endif %}">
+<div class="immat">{{ o.vehicule.immatriculation }}</div><div class="small">{{ o.vehicule.marque }} {{ o.vehicule.modele }}</div>
+<div class="small muted">{{ o.client }} · reçu le {{ o.date_reception|date:"d/m" }}</div>{% if o.mecanicien %}<div class="small muted">{% icone "wrench" %} {{ o.mecanicien }}</div>{% endif %}</a>
+{% empty %}<div class="small muted" style="padding:4px">—</div>{% endfor %}</div>{% endfor %}
+</div>
+<div class="carte" style="margin-top:16px"><h2>Terminées récemment</h2><div class="table-scroll"><table><tr><th>N°</th><th>Véhicule</th><th>Client</th><th>Statut</th><th>Livré le</th></tr>
+{% for o in termines %}<tr class="lien" data-href="{{ o.get_absolute_url }}"><td>{{ o.numero }}</td><td>{{ o.vehicule.immatriculation }}</td><td>{{ o.client }}</td><td>{{ o.get_statut_display }}</td><td>{{ o.date_livraison|date:"d/m/Y"|default:"—" }}</td></tr>
+{% empty %}<tr><td colspan="5" class="muted">Rien pour l'instant.</td></tr>{% endfor %}</table></div></div>
+{% endblock %}

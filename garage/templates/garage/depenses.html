@@ -1,0 +1,12 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Dépenses{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1>{% icone "receipt" %} Dépenses</h1><div class="muted">Total affiché : <b>{{ total|ar }}</b></div></div><a class="btn prim" href="{% url 'depense_nouvelle' %}">{% icone "plus" %} Nouvelle dépense</a></div>
+<div class="onglets"><a href="?" class="{% if not facture %}actif{% endif %}">Toutes</a><a href="?facture=oui" class="{% if facture == 'oui' %}actif{% endif %}">Avec facture</a><a href="?facture=non" class="{% if facture == 'non' %}actif{% endif %}">Sans facture</a></div>
+<form class="no-print" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><input type="hidden" name="facture" value="{{ facture|default:'' }}">
+<select name="categorie" style="max-width:260px" onchange="this.form.submit()"><option value="">Toutes les catégories</option>{% for c, n in categories %}<option value="{{ c }}" {% if categorie == c %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></form>
+<div class="carte"><div class="table-scroll"><table><tr><th>Date</th><th>Motif</th><th>Catégorie</th><th>Justificatif</th><th>Réparation</th><th class="num">Montant</th></tr>
+{% for d in depenses %}<tr class="lien" data-href="{% url 'depense_detail' d.pk %}"><td class="small">{{ d.date|date:"d/m/Y" }}</td><td>{% editable d "depense" "motif" %}<div class="small muted">{{ d.fournisseur }}</div></td><td class="small">{{ d.get_categorie_display }}</td>
+<td>{% if d.avec_facture %}<span class="pastille vert">{% icone "camera" %} facture</span>{% else %}<span class="pastille orange">Bon {{ d.numero_bon }}</span>{% endif %}</td>
+<td class="small">{% if d.ordre %}{{ d.ordre.vehicule.immatriculation }}{% endif %}</td><td class="num">{{ d.montant|ar }}</td></tr>
+{% empty %}<tr><td colspan="6" class="muted">Aucune dépense.</td></tr>{% endfor %}</table></div></div>
+{% endblock %}

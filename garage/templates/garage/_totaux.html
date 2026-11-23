@@ -1,0 +1,13 @@
+{% load carplus %}<div id="totaux" hx-get="{% url 'ordre_totaux' o.pk %}" hx-trigger="totaux-changes from:body" hx-swap="outerHTML">
+<table style="max-width:420px;margin-left:auto">
+<tr><td>Pièces</td><td class="num">{{ o.total_pieces|ar }}</td></tr>
+<tr><td>Main-d'œuvre</td><td class="num">{{ o.total_main_oeuvre|ar }}</td></tr>
+<tr><td>Prix global (forfait) <span class="small muted">si rempli, remplace le calcul</span></td><td class="num">{% editable o "ordre_argent" "forfait" %}</td></tr>
+<tr><td>Remise</td><td class="num">- {% editable o "ordre_argent" "remise" %}</td></tr>
+{% if o.montant_tva %}<tr><td>TVA</td><td class="num">{{ o.montant_tva|ar }}</td></tr>{% endif %}
+<tr><td><b>TOTAL</b></td><td class="num"><b>{{ o.total|ar }}</b></td></tr>
+<tr><td>Déjà payé</td><td class="num">{{ o.paye|ar }}</td></tr>
+<tr><td><b>Reste à payer</b></td><td class="num"><b style="color:{% if o.reste > 0 %}var(--rouge){% else %}var(--vert){% endif %}">{{ o.reste|ar }}</b></td></tr>
+<tr><td class="muted small">Coût des pièces achetées</td><td class="num muted small">{{ o.cout_pieces|ar }}</td></tr>
+<tr><td class="muted small">Marge du garage</td><td class="num small"><b>{{ o.marge|ar }}</b></td></tr>
+</table></div>

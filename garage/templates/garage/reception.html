@@ -1,0 +1,20 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Réception{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1>{% icone "clipboard-list" %} Réception d'un véhicule</h1><div class="muted">Tapez la plaque : l'historique du véhicule s'affiche tout de suite. Tout se fait sur cette page.</div></div></div>
+<form method="post" class="formulaire">{% csrf_token %}
+{% if form.errors %}<ul class="messages"><li class="error">Vérifiez les champs en rouge.</li></ul>{% endif %}
+<div class="carte"><div class="champ" style="max-width:360px"><label>Immatriculation</label>
+<input type="text" name="immatriculation" value="{{ form.immatriculation.value|default:'' }}" required autofocus autocomplete="off" placeholder="Ex. : 1234 TBA" style="text-transform:uppercase;font-size:1.25rem;font-weight:700"
+ hx-get="{% url 'reception_vehicule' %}" hx-trigger="input changed delay:300ms" hx-target="#fiche-vehicule"></div>
+{{ form.marque.errors }}{{ form.client_nom.errors }}</div>
+<div id="fiche-vehicule">{% if vehicule %}{% include "garage/_reception_vehicule.html" with immat=vehicule.immatriculation %}{% elif form.is_bound %}{% include "garage/_reception_vehicule.html" with immat=form.data.immatriculation %}{% endif %}</div>
+<div class="carte"><h2>{% icone "notebook-pen" %} Cette visite</h2>
+<div class="grille g3"><div class="champ"><label>Kilométrage au compteur</label>{{ form.kilometrage }}</div><div class="champ"><label>Niveau de carburant</label>{{ form.niveau_carburant }}</div><div class="champ"><label>Mécanicien</label>{{ form.mecanicien }}</div></div>
+<div class="champ"><label>Problème signalé par le client *</label>{{ form.probleme }}{{ form.probleme.errors }}</div>
+<div class="champ"><label>Parties concernées <span class="muted small">(sert à repérer les problèmes qui reviennent)</span></label><div class="cases">{{ form.systemes }}</div></div>
+<div class="grille g2"><div class="champ"><label>État de la carrosserie (rayures, chocs…)</label>{{ form.etat_carrosserie }}</div>
+<div><div class="champ"><label>Objets laissés dans le véhicule</label>{{ form.accessoires }}</div><div class="champ"><label>Déposé par (si ce n'est pas le propriétaire)</label>{{ form.deposant }}</div></div></div>
+<p class="small muted">Les photos des dégâts s'ajoutent juste après, sur la fiche de la réparation.</p>
+<button class="btn rouge" style="padding:12px 22px">Enregistrer la réception</button></div>
+</form>
+{% endblock %}

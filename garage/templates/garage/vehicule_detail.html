@@ -1,0 +1,48 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}{{ v.immatriculation }}{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1>{{ v.immatriculation }} · {{ v.marque }} {{ v.modele }}</h1>
+<div class="muted">Propriétaire : <a href="{{ v.proprietaire.get_absolute_url }}">{{ v.proprietaire }}</a>{% if premiere %} · au garage depuis le {{ premiere.date_reception|date:"d/m/Y" }}{% endif %} · km estimé aujourd'hui : <b>{{ km_estime|nombre }} km</b>{% if km_jour %} (≈ {{ km_jour|floatformat:0 }} km/jour){% endif %}</div></div>
+<div><a class="btn rouge" href="{% url 'ordre_nouveau' %}?vehicule={{ v.pk }}">{% icone "plus" %} Réception</a> <a class="btn" href="{% url 'vehicule_proprietaire' v.pk %}">{% icone "repeat" %} Changer de propriétaire</a></div></div>
+
+{% if recurrents %}<div class="alerte rouge"><b>{% icone "repeat" %} Problèmes qui reviennent sur ce véhicule :</b><ul style="margin:4px 0 0;padding-left:18px">{% for s, ords in recurrents %}<li><b>{{ s }}</b> : {{ ords|length }} fois — {% for o in ords %}<a href="{{ o.get_absolute_url }}">{{ o.date_reception|date:"d/m/Y" }}{% if o.kilometrage %} ({{ o.kilometrage|nombre }} km){% endif %}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</li>{% endfor %}</ul></div>{% endif %}
+{% if surveiller %}<div class="alerte orange"><b>{% icone "triangle-alert" %} À surveiller :</b><ul style="margin:4px 0 0;padding-left:18px">{% for o in surveiller %}<li><a href="{{ o.get_absolute_url }}">{{ o.date_reception|date:"d/m/Y" }}</a> — {% if o.travaux_refuses %}<b>refusé/reporté :</b> {{ o.travaux_refuses }}{% if o.risque %} <i>— risque : {{ o.risque }}</i>{% endif %}{% endif %}{% if o.recommandations %} <b>conseillé :</b> {{ o.recommandations }}{% endif %}</li>{% endfor %}</ul></div>{% endif %}
+
+<div class="carte" id="carnet"><h2>{% icone "list-checks" %} Carnet d'entretien <span class="small muted">(cliquez sur une date ou un km pour le changer)</span></h2>
+{% if carnet %}<div class="table-scroll"><table><tr><th>Entretien</th><th>Dernière fois</th><th>À refaire</th><th>État</th></tr>
+{% for e, etat in carnet %}<tr class="etat-{{ etat }}"><td><b>{{ e.designation }}</b></td><td>{{ e.fait_le|date:"d/m/Y" }}{% if e.fait_km %} · {{ e.fait_km|nombre }} km{% endif %}{% if e.ordre %} · <a href="{{ e.ordre.get_absolute_url }}">OR</a>{% endif %}</td>
+<td>le {% editable e "entretien" "prochaine_date" %} ou à {% editable e "entretien" "prochain_km" %} km</td>
+<td>{% if etat == "depasse" %}<span class="pastille rouge">Dépassé</span>{% elif etat == "bientot" %}<span class="pastille orange">Bientôt</span>{% elif e.prochain_km or e.prochaine_date %}<span class="pastille vert">OK</span>{% else %}<span class="pastille">Pas d'échéance</span>{% endif %}</td></tr>{% endfor %}</table></div>
+{% else %}<p class="muted">Aucun entretien enregistré.</p>{% endif %}
+<details style="margin-top:10px"><summary class="btn petit">+ Noter un entretien (fait ici ou ailleurs)</summary>
+<form method="post" action="{% url 'entretien_ajout' v.pk %}" style="margin-top:10px">{% csrf_token %}
+<div class="grille g3"><div class="champ"><label>Entretien</label>{{ entretien_form.type }}</div><div class="champ"><label>ou autre</label>{{ entretien_form.autre }}</div><div class="champ"><label>Fait le</label>{{ entretien_form.fait_le }}</div>
+<div class="champ"><label>Fait à (km)</label>{{ entretien_form.fait_km }}</div><div class="champ"><label>Le client doit revenir le</label>{{ entretien_form.prochaine_date }}</div><div class="champ"><label>ou à … km au compteur</label>{{ entretien_form.prochain_km }}</div></div>
+<button class="btn prim">Ajouter</button></form></details>
+{% if anciens_entretiens %}<details style="margin-top:8px"><summary class="small muted" style="cursor:pointer">Anciens entretiens ({{ anciens_entretiens|length }})</summary>{% for e in anciens_entretiens %}<div class="small">{{ e.fait_le|date:"d/m/Y" }} · {{ e.designation }}{% if e.fait_km %} · {{ e.fait_km|nombre }} km{% endif %}</div>{% endfor %}</details>{% endif %}
+</div>
+
+<div class="grille g2">
+<div class="carte"><h2>{% icone "car" %} Fiche</h2><dl class="fiche">
+<dt>Catégorie</dt><dd>{{ v.get_categorie_display }}</dd>
+<dt>Marque</dt><dd>{% editable v "vehicule" "marque" %}</dd><dt>Modèle</dt><dd>{% editable v "vehicule" "modele" %}</dd>
+<dt>Année</dt><dd>{% editable v "vehicule" "annee" %}</dd><dt>VIN / n° de cadre</dt><dd>{% editable v "vehicule" "vin" %}</dd>
+<dt>Moteur</dt><dd>{% editable v "vehicule" "moteur" %}</dd><dt>Carburant</dt><dd>{{ v.get_carburant_display|default:"—" }}</dd>
+<dt>Couleur</dt><dd>{% editable v "vehicule" "couleur" %}</dd><dt>Dernier km relevé</dt><dd>{% editable v "vehicule" "kilometrage" %} km</dd>
+<dt>Notes</dt><dd>{% editable v "vehicule" "notes" %}</dd></dl></div>
+<div class="carte"><h2>{% icone "history" %} Historique au garage ({{ ordres|length }} passage{{ ordres|length|pluralize }})</h2>
+<div class="chrono">
+{% for o in ordres %}<div class="evt"><div><b>{{ o.date_reception|date:"d/m/Y" }}</b> · <a href="{{ o.get_absolute_url }}">OR {{ o.numero }}</a>{% if o.kilometrage %} · {{ o.kilometrage|nombre }} km{% endif %} <span class="pastille">{{ o.get_statut_display }}</span></div>
+{% if o.systemes.all %}<div>{% for s in o.systemes.all %}<span class="pastille orange" style="margin:2px 2px 0 0">{{ s }}</span>{% endfor %}</div>{% endif %}
+{% if o.lie_a %}<div class="small" style="color:var(--rouge)">↳ {{ o.get_nature_lien_display }} (lié au {{ o.lie_a.date_reception|date:"d/m/Y" }})</div>{% endif %}
+<div class="small"><b>Problème :</b> {{ o.probleme|truncatechars:160 }}</div>
+{% if o.cause %}<div class="small"><b>Cause :</b> {{ o.cause|truncatechars:160 }}</div>{% endif %}
+{% if o.travaux %}<div class="small"><b>Travaux :</b> {{ o.travaux|truncatechars:160 }}</div>{% endif %}
+{% with ls=o.lignes.all %}{% if ls %}<div class="small muted">Pièces : {% for l in ls %}{% if l.type == "piece" %}{{ l.designation }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</div>{% endif %}{% endwith %}
+{% if o.recommandations %}<div class="small"><b>Conseillé :</b> {{ o.recommandations|truncatechars:140 }}</div>{% endif %}
+{% if o.travaux_refuses %}<div class="small" style="color:var(--orange)"><b>Refusé/reporté :</b> {{ o.travaux_refuses|truncatechars:140 }}</div>{% endif %}
+{% for n in o.notes.all %}<div class="small muted">{% icone "notebook-pen" %} {{ n.texte|truncatechars:140 }}</div>{% endfor %}
+<div class="small muted">{% if o.mecanicien %}Mécanicien : {{ o.mecanicien }}{% endif %}{% if o.minutes_travail %} · {{ o.minutes_travail }} min de travail{% endif %}{% if voit_argent %} · Coût : {{ o.total|ar }}{% endif %}{% if o.photos.all %} · {{ o.photos.all|length }} photo(s){% endif %}</div></div>
+{% empty %}<p class="muted">Aucun passage au garage pour l'instant.</p>{% endfor %}
+{% for ch in changements %}<div class="evt proprio"><b>{{ ch.date|date:"d/m/Y" }}</b> · Changement de propriétaire → {{ ch.nouveau }}</div>{% endfor %}
+</div></div></div>
+{% endblock %}

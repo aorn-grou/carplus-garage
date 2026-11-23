@@ -1,0 +1,17 @@
+{% extends "garage/base.html" %}{% block titre %}Nouvelle dépense{% endblock %}
+{% block contenu %}
+<div class="entete"><h1>Nouvelle dépense</h1></div>
+<div class="carte" style="max-width:760px"><form method="post" enctype="multipart/form-data" class="formulaire">{% csrf_token %}
+{{ form.non_field_errors }}
+<div class="champ"><label style="display:flex;gap:8px;align-items:center;font-size:1rem">{{ form.avec_facture }} J'ai une facture (photo obligatoire)</label></div>
+<div class="grille g2"><div class="champ"><label>Montant (Ar)</label>{{ form.montant }}{{ form.montant.errors }}</div><div class="champ"><label>Catégorie</label>{{ form.categorie }}</div></div>
+<div class="champ"><label>Motif</label>{{ form.motif }}{{ form.motif.errors }}</div>
+<div class="grille g2"><div class="champ"><label>Fournisseur / bénéficiaire</label>{{ form.fournisseur }}</div><div class="champ"><label>Mode de paiement</label>{{ form.mode }}</div></div>
+<div data-si-facture><div class="champ"><label>N° de la facture</label>{{ form.numero_document }}</div>
+<div class="champ"><label>Photo de la facture</label><input type="file" name="photo" accept="image/*" capture="environment">{{ form.photo.errors }}
+<span class="helptext">La photo est compressée automatiquement avant l'envoi.</span></div></div>
+<div data-sans-facture class="carte" style="background:var(--orange-clair);border-color:var(--orange-bord)"><b>Dépense sans facture :</b> un bon interne numéroté sera créé. Ce n'est pas une facture fiscale.</div>
+<div class="champ"><label>Réparation liée (achat de pièce)</label>{{ form.ordre }}</div>
+<button class="btn prim">Enregistrer la dépense</button> <a class="btn" href="javascript:history.back()">Annuler</a>
+</form></div>
+{% endblock %}

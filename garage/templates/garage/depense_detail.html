@@ -1,0 +1,16 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Dépense{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1>{% if d.avec_facture %}Dépense avec facture{% else %}Bon interne de dépense {{ d.numero_bon }}{% endif %}</h1><div class="muted">{{ d.date|date:"d/m/Y à H:i" }} · saisi par {{ d.par|default:"—" }}</div></div>
+<button class="btn no-print" onclick="window.print()">Imprimer</button></div>
+<div class="grille g2"><div class="carte"><dl class="fiche">
+<dt>Montant</dt><dd>{% editable d "depense" "montant" %}</dd>
+<dt>Motif</dt><dd>{% editable d "depense" "motif" %}</dd>
+<dt>Catégorie</dt><dd>{{ d.get_categorie_display }}</dd>
+<dt>Fournisseur / bénéficiaire</dt><dd>{% editable d "depense" "fournisseur" %}</dd>
+{% if d.avec_facture %}<dt>N° de facture</dt><dd>{% editable d "depense" "numero_document" %}</dd>{% endif %}
+<dt>Mode</dt><dd>{{ d.get_mode_display }}</dd>
+<dt>Réparation</dt><dd>{% if d.ordre %}<a href="{{ d.ordre.get_absolute_url }}">OR {{ d.ordre.numero }} · {{ d.ordre.vehicule.immatriculation }}</a>{% else %}—{% endif %}</dd></dl>
+{% if not d.avec_facture %}<div class="signatures" style="display:flex;justify-content:space-between;margin-top:40px"><div style="width:45%;border-top:1px solid var(--bord-fort);text-align:center" class="small">Bénéficiaire</div><div style="width:45%;border-top:1px solid var(--bord-fort);text-align:center" class="small">Responsable {{ p.nom }}</div></div>
+<p class="small muted">Bon interne — justificatif absent. Ce document n'est pas une facture.</p>{% endif %}</div>
+<div class="carte"><h2>Photo de la facture</h2>{% if d.photo %}<a href="{{ d.photo.url }}" target="_blank"><img src="{{ d.photo.url }}" alt="Facture" style="max-width:100%;border-radius:8px;border:1px solid var(--bord)"></a><div class="small muted">Taille : {{ d.photo.size|filesizeformat }} · cliquer pour agrandir</div>{% else %}<p class="muted">Pas de photo.</p>{% endif %}</div></div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% load carplus %}<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>{{ titre }} {{ numero }}</title>
+<style>
+@page{size:A4;margin:10mm}
+*{box-sizing:border-box}
+body{font-family:"Segoe UI",Arial,sans-serif;color:#15181d;font-size:13px;margin:0 auto;padding:18px;max-width:820px;background:#fff}
+.bande-haut,.bande-bas{background:#15181d;color:#fff;position:relative;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bande-haut{display:flex;justify-content:space-between;align-items:stretch}
+.bande-haut .gauche{padding:14px 18px 12px;min-width:300px}
+.bande-haut .droite{background:#fff;color:#15181d;padding:10px 16px;min-width:290px;font-size:12.5px;border-left:6px solid #15181d}
+.logo-csp{font-style:italic;font-weight:900;line-height:.95;letter-spacing:1px;position:relative}
+.logo-csp .car{font-size:34px;color:#fff;text-shadow:2px 2px 0 #1f5fbf}
+.logo-csp .service{font-size:20px;color:#e0262e}
+.logo-csp .plus{font-size:20px;color:#fff}
+.logo-csp .l3{font-size:10px;letter-spacing:9px;color:#cfd6e0;font-style:normal;font-weight:600;margin-top:4px}
+.logo-csp .bandes{display:flex;gap:3px;margin-top:6px;width:210px}.logo-csp .bandes i{height:5px;flex:1;transform:skewX(-30deg)}
+.logo-csp .bandes i:nth-child(1){background:#3aa0e8}.logo-csp .bandes i:nth-child(2){background:#1f3f99}.logo-csp .bandes i:nth-child(3){background:#e0262e}
+.ident{margin:10px 0 2px;font-size:12.5px;line-height:1.45}
+.ident b{display:inline-block;min-width:70px}
+.titre-doc{font-weight:800;font-size:15px;margin-top:6px}
+.devise{text-align:right;font-size:11.5px;color:#444;margin:4px 0 2px}
+table.lignes{width:100%;border-collapse:collapse}
+table.lignes th{background:#15181d;color:#fff;padding:6px 8px;font-size:12px;text-align:center;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+table.lignes td{border:1px solid #9aa3b0;padding:5px 8px}
+td.num,th.num{text-align:right;white-space:nowrap}
+td.c{text-align:center}
+tr.total td{font-weight:800;border-top:2px solid #15181d}
+.inclus{color:#555;font-style:italic;text-align:center}
+.arrete{margin:18px 0 6px}
+.nb{font-weight:700;font-style:italic;margin:14px 0}
+.signatures{display:flex;justify-content:space-between;margin:70px 30px 0}
+.signatures div{text-align:center;min-width:200px}
+.signatures .nom{margin-top:56px;font-weight:700}
+.bande-bas{margin-top:60px;padding:14px 22px;text-align:right;font-weight:900;font-style:italic;font-size:17px;letter-spacing:1px}
+.bande-bas .bandes{position:absolute;left:22px;top:50%;transform:translateY(-50%);display:flex;gap:4px;width:260px}
+.bande-bas .bandes i{height:10px;flex:1;transform:skewX(-30deg)}
+.bande-bas .bandes i:nth-child(1){background:#3aa0e8}.bande-bas .bandes i:nth-child(2){background:#1f3f99}.bande-bas .bandes i:nth-child(3){background:#e0262e}
+.bouton{position:fixed;top:10px;right:10px;background:#1f5fbf;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:14px;cursor:pointer}
+.bloc{border:1px solid #9aa3b0;padding:8px 10px;margin:8px 0}.bloc h3{margin:0 0 4px;font-size:12px;text-transform:uppercase;color:#555}
+@media print{.bouton{display:none}body{padding:0}}
+</style></head><body>
+<button class="bouton" onclick="window.print()">Imprimer / PDF</button>
+<div class="bande-haut"><div class="gauche">{% include "garage/_logo.html" %}</div>
+<div class="droite"><b>{{ o.client.nom }}</b><br>ID Client : {{ o.client.code }}{% if o.client.nif %}<br>NIF : {{ o.client.nif }}{% endif %}{% if o.client.stat %}<br>STAT : {{ o.client.stat }}{% endif %}
+<div style="margin-top:6px"><b>Véhicule</b><br>Marque : {{ o.vehicule.marque }}<br>Modèle : {{ o.vehicule.modele }}{% if o.vehicule.immatriculation %}<br>Immatriculation : {{ o.vehicule.immatriculation }}{% endif %}{% if o.vehicule.vin %}<br>VIN : {{ o.vehicule.vin }}{% endif %}</div></div></div>
+<div class="ident">{% if p.adresse %}<b>Adresse :</b> {{ p.adresse }}<br>{% endif %}{% if p.nif %}<b>NIF :</b> {{ p.nif }}<br>{% endif %}{% if p.stat %}<b>STAT :</b> {{ p.stat }}<br>{% endif %}{% if p.telephone %}<b>Téléphone :</b> {{ p.telephone }}{% endif %}
+<div class="titre-doc">{{ titre }} N° : {{ numero }}</div>Date : {{ date|date:"d/m/Y" }}{% if doc == "or" or doc == "rapport" %} · Kilométrage : {{ o.kilometrage|nombre }} km{% endif %}</div>
+
+{% if doc == "or" or doc == "rapport" %}<div class="bloc"><h3>Problème signalé</h3>{{ o.probleme|linebreaksbr }}{% if o.deposant %}<br><i>Déposé par : {{ o.deposant }}</i>{% endif %}</div>{% endif %}
+{% if doc == "or" %}{% if o.etat_carrosserie %}<div class="bloc"><h3>État de la carrosserie à la réception</h3>{{ o.etat_carrosserie|linebreaksbr }}</div>{% endif %}{% if o.accessoires %}<div class="bloc"><h3>Objets laissés dans le véhicule</h3>{{ o.accessoires }}</div>{% endif %}{% endif %}
+{% if doc == "rapport" %}{% if o.diagnostic %}<div class="bloc"><h3>Diagnostic</h3>{{ o.diagnostic|linebreaksbr }}</div>{% endif %}{% if o.travaux %}<div class="bloc"><h3>Travaux réalisés</h3>{{ o.travaux|linebreaksbr }}</div>{% endif %}{% if o.recommandations %}<div class="bloc"><h3>Nos recommandations</h3>{{ o.recommandations|linebreaksbr }}</div>{% endif %}{% endif %}
+
+{% if doc == "depenses" %}
+<div class="devise">Devise en MGA</div>
+<table class="lignes"><tr><th style="width:40px">N°</th><th>Désignation</th><th class="num" style="width:140px">Total</th></tr>
+{% for d in depenses %}<tr><td class="c">{{ forloop.counter }}</td><td>{{ d.motif }}{% if d.fournisseur %} <span style="color:#666">({{ d.fournisseur }})</span>{% endif %}</td><td class="num">{{ d.montant|nombre }},00</td></tr>
+{% empty %}<tr><td colspan="3" class="c">Aucune dépense enregistrée pour cette réparation.</td></tr>{% endfor %}
+<tr class="total"><td></td><td>TOTAL</td><td class="num">{{ total_dep|nombre }},00</td></tr></table>
+<p class="arrete">Le présent état de dépense est arrêté à la somme de « {{ lettres }} ».</p>
+{% elif doc != "or" %}
+<div class="devise">Devise en MGA</div>
+<table class="lignes"><tr><th style="width:40px">N°</th><th>Désignation</th><th style="width:60px">Qté</th><th class="num" style="width:110px">PU</th><th class="num" style="width:130px">Montant</th></tr>
+{% for l in lignes %}<tr><td class="c">{{ forloop.counter }}</td><td>{{ l.designation }}</td>
+{% if l.prix_unitaire %}<td class="c">{{ l.quantite|nombre }}</td><td class="num">{{ l.prix_unitaire|nombre }},00</td><td class="num">{{ l.total|nombre }},00</td>{% else %}<td></td><td></td><td class="inclus">inclus</td>{% endif %}</tr>{% endfor %}
+{% if o.remise %}<tr><td></td><td>Remise</td><td></td><td></td><td class="num">- {{ o.remise|nombre }},00</td></tr>{% endif %}
+{% if o.montant_tva %}<tr><td></td><td>Total HT</td><td></td><td></td><td class="num">{{ o.total_ht|nombre }},00</td></tr><tr><td></td><td>TVA {{ p.taux_tva|nombre }} %</td><td></td><td></td><td class="num">{{ o.montant_tva|nombre }},00</td></tr>{% endif %}
+<tr class="total"><td></td><td>TOTAL{% if o.montant_tva %} TTC{% endif %}</td><td></td><td></td><td class="num">{{ o.total|nombre }},00</td></tr></table>
+<p class="arrete">{% if doc == "devis" %}Le présent devis est arrêté{% else %}La présente facture est arrêtée{% endif %} à la somme total{% if not o.montant_tva %} net{% endif %} de « {{ lettres }} ».</p>
+{% if doc == "facture" %}{% if o.paye %}<p>Déjà payé : {{ o.paye|nombre }} Ar · Reste à payer : <b>{{ o.reste|nombre }} Ar</b></p>{% endif %}
+{% if p.rib %}<p class="nb">NB : Veuillez nous transférer sur notre RIB {{ p.banque }} : {{ p.rib }} le montant de {{ o.reste|nombre }} MGA soit : « {{ lettres }} », merci pour votre confiance.</p>{% endif %}{% endif %}
+{% if doc == "devis" %}<p class="nb">Devis à retourner signé avec la mention « Bon pour accord ».</p>{% endif %}
+{% endif %}
+{% if p.pied_facture and doc == "facture" %}<p style="font-size:11.5px;color:#444">{{ p.pied_facture }}</p>{% endif %}
+<div class="signatures"><div>Le Gérant<div class="nom">{{ p.gerant }}</div></div><div>{% if doc == "devis" %}Bon pour accord du client{% else %}Client{% endif %}</div></div>
+<div class="bande-bas"><div class="bandes"><i></i><i></i><i></i></div>{{ p.phrase_pied }}</div>
+</body></html>

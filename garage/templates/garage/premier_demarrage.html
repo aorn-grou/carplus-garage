@@ -1,0 +1,11 @@
+{% load static %}<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bienvenue · CAR PLUS</title><script>try{var t=localStorage.getItem("carplus-theme");if(t==="clair"||t==="sombre")document.documentElement.dataset.theme=t;}catch(e){}</script>
+<link rel="stylesheet" href="{% static 'garage/style.css' %}"><link rel="icon" href="{% static 'garage/icone.svg' %}"></head>
+<body><div class="connexion"><div class="carte" style="width:min(640px,94vw);margin:24px 0">
+<div style="margin-bottom:10px">{% include "garage/_logo.html" %}</div>
+<h1>Bienvenue</h1><p class="muted">Première ouverture du logiciel : renseignez votre garage et créez le compte du patron. Vous pourrez tout modifier ensuite dans « Paramètres ».</p>
+<form method="post" class="formulaire">{% csrf_token %}
+<h2 style="margin-top:16px">Votre garage</h2>{{ gform.as_p }}
+<h2 style="margin-top:16px">Compte du patron</h2>{{ uform.as_p }}
+<button class="btn prim" style="width:100%;justify-content:center;padding:12px">Créer mon compte et commencer</button>
+</form></div></div></body></html>

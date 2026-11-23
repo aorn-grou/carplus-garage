@@ -1,0 +1,67 @@
+{% load static carplus %}<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<meta name="theme-color" content="#15181d"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>{% block titre %}Accueil{% endblock %} · {{ p.nom|default:'CAR SERVICE PLUS' }}</title>
+<link rel="icon" href="{% static 'garage/icone.svg' %}">
+<script>try{var t=localStorage.getItem("carplus-theme");if(t==="clair"||t==="sombre")document.documentElement.dataset.theme=t;}catch(e){}</script>
+<link rel="stylesheet" href="{% static 'garage/style.css' %}">
+<script src="{% static 'garage/htmx.min.js' %}" defer></script>
+<script src="{% static 'garage/app.js' %}" defer></script>
+</head><body>
+<a class="aller-contenu" href="#contenu">Aller au contenu</a>
+{% include "garage/_icones.html" %}
+<div class="app">
+  <nav class="side">
+    <a class="logo-lien" href="{% url 'accueil' %}" aria-label="Tableau de bord">{% include "garage/_logo.html" %}</a>
+    {% with u=request.resolver_match.url_name %}
+    <a class="nav {% if u == 'accueil' %}actif{% endif %}" href="{% url 'accueil' %}">{% icone "layout-dashboard" %}<span class="texte">Tableau de bord</span></a>
+    <a class="nav {% if u == 'rappels' %}actif{% endif %}" href="{% url 'rappels' %}">{% icone "phone-call" %}<span class="texte">À contacter</span> {% if nb_alertes %}<span class="badge">{{ nb_alertes }}</span>{% endif %}</a>
+    <div class="sep">Atelier</div>
+    <a class="nav {% if u == 'ordre_nouveau' %}actif{% endif %}" href="{% url 'ordre_nouveau' %}">{% icone "clipboard-list" %}<span class="texte">Réception véhicule</span></a>
+    <a class="nav {% if u == 'ordres' or u == 'ordre_detail' %}actif{% endif %}" href="{% url 'ordres' %}">{% icone "wrench" %}<span class="texte">Réparations</span></a>
+    <div class="sep">Clients</div>
+    <a class="nav {% if u == 'clients' or u == 'client_detail' %}actif{% endif %}" href="{% url 'clients' %}">{% icone "users" %}<span class="texte">Clients et sociétés</span></a>
+    <a class="nav {% if u == 'vehicules' or u == 'vehicule_detail' %}actif{% endif %}" href="{% url 'vehicules' %}">{% icone "car" %}<span class="texte">Registre des véhicules</span></a>
+    {% if voit_argent %}
+    <div class="sep">Argent</div>
+    <a class="nav {% if u == 'caisse' %}actif{% endif %}" href="{% url 'caisse' %}">{% icone "wallet" %}<span class="texte">Caisse</span></a>
+    <a class="nav {% if u == 'depenses' or u == 'depense_nouvelle' or u == 'depense_detail' %}actif{% endif %}" href="{% url 'depenses' %}">{% icone "receipt" %}<span class="texte">Dépenses</span></a>
+    {% endif %}
+    {% if est_patron %}
+    <div class="sep">Administration</div>
+    <a class="nav {% if u == 'journal' %}actif{% endif %}" href="{% url 'journal' %}">{% icone "history" %}<span class="texte">Historique des modifications</span></a>
+    <a class="nav {% if u == 'parametres' %}actif{% endif %}" href="{% url 'parametres' %}">{% icone "settings" %}<span class="texte">Paramètres</span></a>
+    <a class="nav" href="/admin/garage/typeentretien/">{% icone "list-checks" %}<span class="texte">Types d'entretien</span></a>
+    <a class="nav" href="/admin/auth/user/">{% icone "user-cog" %}<span class="texte">Utilisateurs</span></a>
+    {% endif %}
+    {% endwith %}
+    <div class="version">{{ p.nom|default:"CAR SERVICE PLUS" }} · version {{ version }}</div>
+  </nav>
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn btn" onclick="basculerMenu()" aria-label="Ouvrir le menu">☰</button>
+      <div class="search">
+        <span class="loupe">{% icone "search" %}</span>
+        <input id="recherche-globale" type="search" name="q" aria-label="Recherche globale" autocomplete="off"
+               placeholder="Rechercher : plaque, client, téléphone, n° de réparation, dépense, menu…"
+               hx-get="{% url 'recherche' %}" hx-trigger="input changed delay:250ms, focus" hx-target="#resultats">
+        <kbd>Ctrl K</kbd>
+        <div id="resultats"></div>
+      </div>
+      <div class="user"><span class="nom muted small">{{ user.get_full_name|default:user.username }} · {{ role }}</span>
+        <div class="theme" role="group" aria-label="Apparence">
+          <button type="button" data-theme-choix="clair" title="Thème clair" aria-label="Thème clair">{% icone "sun" %}</button>
+          <button type="button" data-theme-choix="auto" title="Comme l'appareil" aria-label="Thème automatique">{% icone "monitor" %}</button>
+          <button type="button" data-theme-choix="sombre" title="Mode sombre" aria-label="Mode sombre">{% icone "moon" %}</button></div>
+        <form method="post" action="{% url 'deconnexion' %}" style="margin:0">{% csrf_token %}<button class="btn petit" aria-label="Se déconnecter">{% icone "log-out" %} Quitter</button></form>
+      </div>
+    </header>
+    <main class="contenu" id="contenu" tabindex="-1">
+      {% if messages %}<ul class="messages">{% for m in messages %}<li class="{{ m.tags }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+      {% block contenu %}{% endblock %}
+    </main>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,8 @@
+donnees/
+sauvegardes/
+venv/
+python/
+staticfiles/
+paquets/
+__pycache__/
+*.pyc

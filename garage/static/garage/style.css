@@ -1,0 +1,258 @@
+/* CAR SERVICE PLUS — couleurs du logo : noir, bleu clair, bleu foncé, rouge.
+   Thème clair / sombre / automatique. Contraste WCAG 2.2 AA, focus clavier visible, cibles tactiles ≥ 40 px.
+   Grille d'espacement de 4 px. */
+:root{
+  /* Marque (identiques dans les deux thèmes) */
+  --noir:#15181d; --bleu-clair:#3aa0e8; --bleu-fonce:#1f3f99; --rouge-marque:#e0262e;
+  --side:#15181d; --side-2:#232831; --side-texte:#c9d1dd; --side-doux:#8590a2;
+  /* Thème clair */
+  --fond:#f2f4f7; --carte:#ffffff; --surface-2:#f7f8fa; --survol:#eef3fa; --champ:#ffffff;
+  --bord:#d5dbe3; --bord-fort:#aeb8c6; --texte:#161b24; --doux:#566173;
+  --lien:#1958b7; --accent:#1f5fbf; --primaire:#15181d; --primaire-survol:#2b313b; --sur-primaire:#ffffff;
+  --rouge:#c8202a; --rouge-clair:#fdeced; --rouge-bord:#f1b9bc;
+  --vert:#17773f; --vert-clair:#e6f4ec; --vert-bord:#b5dcc4;
+  --orange:#9a5a00; --orange-clair:#fff3df; --orange-bord:#efd2a2;
+  --bleu-pastille:#e8f1fc; --colonne:#e8ecf2;
+  --ombre:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+  --ombre-haute:0 12px 32px rgba(16,24,40,.18);
+  --rayon:10px; --rayon-petit:8px;
+  --focus:0 0 0 3px rgba(58,160,232,.55);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="clair"]){
+    --fond:#0f1216; --carte:#171b21; --surface-2:#1c2128; --survol:#222a35; --champ:#12161b;
+    --bord:#2d3440; --bord-fort:#475163; --texte:#e7eaef; --doux:#a2acba;
+    --lien:#7cbcf2; --accent:#5aaef0; --primaire:#3a8fe0; --primaire-survol:#5aa3e8; --sur-primaire:#0b0e12;
+    --rouge:#ff7a7a; --rouge-clair:#3a1c1f; --rouge-bord:#6a2c31;
+    --vert:#5fd394; --vert-clair:#16301f; --vert-bord:#28553a;
+    --orange:#f3b45a; --orange-clair:#33260f; --orange-bord:#5c451b;
+    --bleu-pastille:#1b2b40; --colonne:#141920;
+    --ombre:0 1px 2px rgba(0,0,0,.4); --ombre-haute:0 12px 32px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="sombre"]{
+  --fond:#0f1216; --carte:#171b21; --surface-2:#1c2128; --survol:#222a35; --champ:#12161b;
+  --bord:#2d3440; --bord-fort:#475163; --texte:#e7eaef; --doux:#a2acba;
+  --lien:#7cbcf2; --accent:#5aaef0; --primaire:#3a8fe0; --primaire-survol:#5aa3e8; --sur-primaire:#0b0e12;
+  --rouge:#ff7a7a; --rouge-clair:#3a1c1f; --rouge-bord:#6a2c31;
+  --vert:#5fd394; --vert-clair:#16301f; --vert-bord:#28553a;
+  --orange:#f3b45a; --orange-clair:#33260f; --orange-bord:#5c451b;
+  --bleu-pastille:#1b2b40; --colonne:#141920;
+  --ombre:0 1px 2px rgba(0,0,0,.4); --ombre-haute:0 12px 32px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{font-size:15px}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--fond);color:var(--texte);line-height:1.5}
+a{color:var(--lien);text-underline-offset:2px}
+h1{font-size:1.5rem;margin:0 0 .2rem;line-height:1.25;text-wrap:balance} h2{font-size:1.08rem;margin:0 0 .8rem} h3{font-size:.98rem;margin:0 0 .5rem}
+h2,h3{display:flex;align-items:center;gap:8px}
+.muted{color:var(--doux)} .small{font-size:.86rem}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ic{width:18px;height:18px;flex:none;vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+h1 .ic{width:24px;height:24px} h2 .ic{color:var(--accent)}
+:focus-visible{outline:none;box-shadow:var(--focus);border-radius:6px}
+.aller-contenu{position:absolute;left:-9999px;top:8px;z-index:100;background:var(--carte);color:var(--texte);padding:10px 14px;border-radius:8px;border:2px solid var(--accent)}
+.aller-contenu:focus{left:12px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+/* Disposition */
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh;background:linear-gradient(to right,var(--side) 240px,transparent 240px)}
+.side{background:var(--side);color:var(--side-texte);padding:18px 12px;position:sticky;top:0;height:100vh;overflow:auto;border-right:1px solid #000}
+.side a.nav{display:flex;align-items:center;gap:10px;color:var(--side-texte);text-decoration:none;padding:0 12px;min-height:42px;border-radius:8px;margin:2px 0}
+.side a.nav .ic{color:var(--side-doux)}
+.side a.nav .texte{flex:1}
+.side a.nav:hover{background:var(--side-2);color:#fff}
+.side a.nav:hover .ic{color:#fff}
+.side a.nav.actif{background:var(--side-2);color:#fff;box-shadow:inset 3px 0 0 var(--bleu-clair)}
+.side a.nav.actif .ic{color:var(--bleu-clair)}
+.side .sep{font-size:.72rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--side-doux);margin:18px 12px 6px}
+.side .version{color:var(--side-doux);padding:18px 12px 0;font-size:.8rem}
+.badge{background:var(--rouge-marque);color:#fff;border-radius:20px;font-size:.75rem;padding:1px 8px;font-weight:700}
+.main{min-width:0}
+.topbar{position:sticky;top:0;z-index:20;background:var(--carte);display:flex;align-items:center;gap:12px;padding:10px 22px;
+  border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--bleu-clair) 0 33%,var(--bleu-fonce) 33% 66%,var(--rouge-marque) 66%) 1}
+.menu-btn{display:none}
+.search{position:relative;flex:1;max-width:640px}
+.search input{width:100%;min-height:42px;padding:10px 14px 10px 40px;border:1px solid var(--bord);border-radius:10px;font-size:1rem;background:var(--surface-2);color:var(--texte)}
+.search input:focus{outline:none;box-shadow:var(--focus);border-color:var(--accent);background:var(--champ)}
+.search .loupe{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--doux)}
+.search kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:.75rem;color:var(--doux);border:1px solid var(--bord);border-radius:5px;padding:1px 6px;background:var(--carte)}
+#resultats{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--carte);border:1px solid var(--bord-fort);border-radius:12px;box-shadow:var(--ombre-haute);max-height:70vh;overflow:auto}
+#resultats:empty{display:none}
+.res-groupe{padding:8px 0;border-bottom:1px solid var(--bord)}
+.res-groupe h4{margin:0;padding:4px 14px;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--doux)}
+.res-groupe a{display:block;padding:9px 14px;text-decoration:none;color:var(--texte)}
+.res-groupe a:hover,.res-groupe a:focus{background:var(--survol);outline:none}
+.user{margin-left:auto;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.theme{display:inline-flex;border:1px solid var(--bord);border-radius:10px;overflow:hidden}
+.theme button{background:var(--carte);color:var(--doux);border:0;min-width:38px;min-height:38px;display:grid;place-items:center;cursor:pointer}
+.theme button+button{border-left:1px solid var(--bord)}
+.theme button[aria-pressed="true"]{background:var(--primaire);color:var(--sur-primaire)}
+.contenu{padding:24px;max-width:1320px}
+.entete{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.entete > div:last-child{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Cartes et blocs */
+.carte{background:var(--carte);border:1px solid var(--bord);border-radius:var(--rayon);padding:18px;box-shadow:var(--ombre);margin-bottom:16px}
+.carte > h2:first-child{padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--bord)}
+.grille{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.grille > *{min-width:0}
+.stat{background:var(--carte);border:1px solid var(--bord);border-radius:var(--rayon);padding:14px 16px;box-shadow:var(--ombre);display:flex;gap:12px;align-items:center;border-left:4px solid var(--bord-fort)}
+.stat .pic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent);flex:none;border:1px solid var(--bord)}
+.stat .v{font-size:1.4rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.stat .l{color:var(--doux);font-size:.85rem}
+.stat.vert{border-left-color:var(--vert)} .stat.vert .v,.stat.vert .pic{color:var(--vert)}
+.stat.rouge{border-left-color:var(--rouge)} .stat.rouge .v,.stat.rouge .pic{color:var(--rouge)}
+.stat.bleu{border-left-color:var(--accent)}
+
+/* Boutons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--bord-fort);background:var(--carte);color:var(--texte);
+  min-height:40px;padding:0 14px;border-radius:9px;text-decoration:none;font-size:.95rem;font-weight:500;cursor:pointer;font-family:inherit;transition:background .12s,border-color .12s}
+.btn:hover{border-color:var(--accent);background:var(--survol)}
+.btn.prim{background:var(--primaire);border-color:var(--primaire);color:var(--sur-primaire)}
+.btn.prim:hover{background:var(--primaire-survol);border-color:var(--primaire-survol)}
+.btn.rouge{background:var(--rouge-marque);border-color:var(--rouge-marque);color:#fff}
+.btn.rouge:hover{background:#c31d25}
+.btn.vert{background:#17773f;border-color:#17773f;color:#fff}
+.btn.vert:hover{background:#12652f}
+.btn.petit{min-height:34px;padding:0 10px;font-size:.86rem}
+.btn-lien{background:none;border:none;color:var(--rouge);cursor:pointer;font-size:.86rem;padding:6px;min-height:32px;display:inline-flex;align-items:center;gap:4px}
+
+/* Tableaux */
+table{width:100%;border-collapse:separate;border-spacing:0}
+.table-scroll{overflow-x:auto;border:1px solid var(--bord);border-radius:var(--rayon-petit)}
+th{text-align:left;font-size:.76rem;text-transform:uppercase;letter-spacing:.5px;color:var(--doux);background:var(--surface-2);border-bottom:1px solid var(--bord);padding:9px 10px;font-weight:600}
+td{border-bottom:1px solid var(--bord);padding:10px;vertical-align:top}
+tr:last-child td{border-bottom:0}
+tr.lien{cursor:pointer} tr.lien:hover td{background:var(--survol)}
+.pastille{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:2px 10px;font-size:.78rem;font-weight:600;background:var(--bleu-pastille);color:var(--lien);white-space:nowrap;border:1px solid transparent}
+.pastille.rouge{background:var(--rouge-clair);color:var(--rouge);border-color:var(--rouge-bord)}
+.pastille.vert{background:var(--vert-clair);color:var(--vert);border-color:var(--vert-bord)}
+.pastille.orange{background:var(--orange-clair);color:var(--orange);border-color:var(--orange-bord)}
+.onglets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.onglets a{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:20px;text-decoration:none;color:var(--texte);background:var(--carte);border:1px solid var(--bord-fort)}
+.onglets a:hover{background:var(--survol)}
+.onglets a.actif{background:var(--primaire);color:var(--sur-primaire);border-color:var(--primaire)}
+.messages{list-style:none;padding:0;margin:0 0 14px}
+.messages li{display:flex;gap:8px;align-items:center;padding:10px 14px;border-radius:9px;background:var(--vert-clair);color:var(--vert);margin-bottom:6px;border:1px solid var(--vert-bord)}
+.messages li.error{background:var(--rouge-clair);color:var(--rouge);border-color:var(--rouge-bord)}
+.messages li.warning{background:var(--orange-clair);color:var(--orange);border-color:var(--orange-bord)}
+
+/* Formulaires */
+form.formulaire p,.champ{margin:0 0 14px}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:5px}
+input[type=text],input[type=number],input[type=email],input[type=date],input[type=password],input[type=tel],input[type=search],select,textarea{
+  width:100%;min-height:42px;padding:9px 12px;border:1px solid var(--bord-fort);border-radius:8px;font-size:1rem;font-family:inherit;background:var(--champ);color:var(--texte)}
+textarea{min-height:auto}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:var(--focus)}
+input[type=file]{color:var(--texte)}
+.helptext{display:block;color:var(--doux);font-size:.82rem;margin-top:4px}
+.errorlist{color:var(--rouge);list-style:none;padding:0;margin:4px 0;font-size:.88rem}
+.radio-ligne ul,ul#id_sens,#id_sens{list-style:none;display:flex;gap:16px;padding:0;margin:0}
+.radio-ligne label,#id_sens label{font-weight:500;display:flex;gap:6px;align-items:center}
+.ligne-form{display:grid;grid-template-columns:150px 1fr 90px 170px auto;gap:8px;align-items:end}
+
+/* Édition directe */
+.ed{cursor:pointer;border-radius:6px;padding:2px 6px;margin:-2px -6px;border:1px dashed transparent;display:inline-block;min-width:40px;white-space:pre-wrap}
+.ed:hover{border-color:var(--accent);background:var(--survol)}
+.ed .vide{color:var(--doux);font-style:italic;opacity:.75}
+.ed-form{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+.ed-form input,.ed-form textarea{min-width:180px;flex:1}
+.ed-form .erreur{color:var(--rouge);font-size:.85rem;width:100%}
+dl.fiche{display:grid;grid-template-columns:180px 1fr;gap:0;margin:0;border:1px solid var(--bord);border-radius:var(--rayon-petit);overflow:hidden}
+dl.fiche dt,dl.fiche dd{padding:9px 12px;border-bottom:1px solid var(--bord);margin:0}
+dl.fiche dt{color:var(--doux);font-size:.88rem;background:var(--surface-2);border-right:1px solid var(--bord)}
+dl.fiche dt:last-of-type,dl.fiche dd:last-of-type{border-bottom:0}
+
+/* Atelier (colonnes) */
+.kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--colonne);border:1px solid var(--bord);border-radius:12px;padding:10px}
+.col h3{display:flex;justify-content:space-between;font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;color:var(--doux);padding:2px 4px 8px;border-bottom:1px solid var(--bord);margin-bottom:10px}
+.ticket{display:block;background:var(--carte);border-radius:9px;padding:10px 12px;margin-bottom:8px;text-decoration:none;color:var(--texte);border:1px solid var(--bord);border-left:4px solid var(--accent);box-shadow:var(--ombre)}
+.ticket:hover{border-color:var(--accent)}
+.ticket .immat{font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+
+/* Historique véhicule */
+.chrono{position:relative;margin-left:10px;padding-left:22px;border-left:2px solid var(--bord)}
+.chrono .evt{position:relative;margin-bottom:18px}
+.chrono .evt::before{content:"";position:absolute;left:-29px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--carte);border:3px solid var(--accent)}
+.chrono .evt.proprio::before{border-color:var(--rouge)}
+
+/* Caisse (graphique) */
+.barres{display:flex;align-items:flex-end;gap:4px;height:200px;padding:10px 0 0;border-bottom:1px solid var(--bord-fort);overflow-x:auto;background:repeating-linear-gradient(to top,transparent 0 49px,var(--bord) 49px 50px)}
+.barre{flex:1;min-width:18px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.barre .duo{display:flex;align-items:flex-end;gap:2px;height:100%;width:100%;justify-content:center}
+.barre .e{background:var(--vert);width:45%;max-width:18px;border-radius:3px 3px 0 0}
+.barre .s{background:var(--rouge);width:45%;max-width:18px;border-radius:3px 3px 0 0;opacity:.85}
+.etiquettes{display:flex;gap:4px}.etiquettes span{flex:1;min-width:18px;text-align:center;font-size:.7rem;color:var(--doux)}
+.legende{display:flex;gap:16px;font-size:.85rem;margin-top:8px}.legende i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+
+/* Photos */
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.photos a{display:block;border-radius:8px;overflow:hidden;border:1px solid var(--bord);background:var(--carte)}
+.photos img{width:100%;height:110px;object-fit:cover;display:block}
+.photos span{display:block;padding:4px 8px;font-size:.8rem;color:var(--doux)}
+.apercu{max-width:100%;max-height:340px;border-radius:8px;border:1px solid var(--bord);margin-top:8px;display:none}
+.compression-info{font-size:.85rem;color:var(--vert);margin-top:4px}
+
+/* Alertes, cases à cocher, contacts */
+.alerte{border-radius:9px;padding:10px 14px;margin:10px 0;border:1px solid var(--bord);background:var(--surface-2);border-left-width:4px}
+.alerte.rouge{background:var(--rouge-clair);border-color:var(--rouge-bord);border-left-color:var(--rouge)}
+.alerte.orange{background:var(--orange-clair);border-color:var(--orange-bord);border-left-color:var(--orange)}
+.alerte.vert{background:var(--vert-clair);border-color:var(--vert-bord);border-left-color:var(--vert)}
+.alerte > b:first-child{display:inline-flex;align-items:center;gap:6px}
+.cases,.cases ul,#id_systemes{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0}
+.cases label,#id_systemes label{display:inline-flex;gap:6px;align-items:center;font-weight:500;font-size:.88rem;border:1px solid var(--bord-fort);border-radius:20px;padding:0 12px;min-height:36px;background:var(--carte);cursor:pointer;margin:0}
+.cases label:has(input:checked),#id_systemes label:has(input:checked){background:var(--primaire);color:var(--sur-primaire);border-color:var(--primaire)}
+.cases input{margin:0}
+.etat-depasse td{background:var(--rouge-clair)} .etat-bientot td{background:var(--orange-clair)}
+.contacts{display:flex;gap:6px;flex-wrap:wrap}
+.contacts .prefere{border:2px solid var(--vert);font-weight:700}
+.resultat-contact{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.resultat-contact select,.resultat-contact input{width:auto;min-height:36px;padding:4px 8px;font-size:.88rem}
+details summary{cursor:pointer}
+
+/* Logo CAR SERVICE PLUS (texte, sans dessin) */
+.logo-lien{display:block;text-decoration:none;padding:2px 8px 18px;border-radius:8px}
+.logo-csp{font-style:italic;font-weight:900;line-height:.95;letter-spacing:1px}
+.logo-csp .car{font-size:30px;color:#fff;text-shadow:2px 2px 0 var(--accent)}
+.logo-csp .service{font-size:17px;color:var(--rouge-marque)}
+.logo-csp .plus{font-size:17px;color:#fff}
+.logo-csp .l3{font-size:9px;letter-spacing:8px;color:#aeb6c4;font-style:normal;font-weight:600;margin-top:4px}
+.logo-csp .bandes{display:flex;gap:3px;margin-top:7px;width:170px}
+.logo-csp .bandes i{height:4px;flex:1;transform:skewX(-30deg)}
+.logo-csp .bandes i:nth-child(1){background:var(--bleu-clair)}.logo-csp .bandes i:nth-child(2){background:var(--bleu-fonce)}.logo-csp .bandes i:nth-child(3){background:var(--rouge-marque)}
+
+/* Connexion et premier démarrage */
+.connexion{min-height:100vh;display:grid;place-items:center;background:linear-gradient(160deg,#15181d,#1f3f99);padding:16px}
+.connexion .carte{width:min(400px,92vw)}
+.connexion .logo-csp{background:#15181d;padding:14px 16px;border-radius:10px;display:inline-block}
+
+/* Tablette et téléphone */
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;background:none}
+  .side{position:fixed;left:0;top:0;bottom:0;width:260px;z-index:50;transform:translateX(-100%);transition:transform .2s}
+  body.menu-ouvert .side{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.45)}
+  .menu-btn{display:inline-flex}
+  .g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .contenu{padding:16px}
+  .topbar{padding:10px 16px}
+  .search kbd,.user .nom{display:none}
+  dl.fiche{grid-template-columns:130px 1fr}
+  .ligne-form{grid-template-columns:1fr 1fr}
+}
+@media (max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr} .theme{display:none}}
+
+/* Impression */
+@media print{
+  .side,.topbar,.no-print,.messages{display:none!important}
+  .app{display:block} body{background:#fff;color:#000} .contenu{padding:0;max-width:none}
+  .carte{box-shadow:none;border:none;padding:0}
+}
+.search input[type=search]{padding-left:40px}
+.stat:not(:has(.pic)){display:block}

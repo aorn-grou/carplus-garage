@@ -1,0 +1,4 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Établir la facture{% endblock %}
+{% block contenu %}<div class="carte" style="max-width:640px"><h1>Établir la facture de la réparation {{ o.numero }}</h1>
+<p>La facture recevra le numéro définitif <b>FAC-{{ p.prochain_numero_facture|stringformat:"06d" }}</b>. Ce numéro ne pourra plus changer. Vérifiez d'abord les lignes et le montant total : <b>{{ o.total|ar }}</b>.</p>
+<form method="post" action="{% url 'facture_etablir' o.pk %}">{% csrf_token %}<button class="btn prim">Établir la facture</button> <a class="btn" href="{{ o.get_absolute_url }}">Revenir à la réparation</a></form></div>{% endblock %}

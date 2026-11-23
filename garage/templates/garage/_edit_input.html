@@ -1,0 +1,7 @@
+<form class="ed-form" hx-post="{% url 'editer' cle obj.pk champ %}" hx-swap="outerHTML">
+  {% if multiligne %}<textarea name="valeur" rows="3" autofocus>{{ valeur }}</textarea>
+  {% else %}<input type="{{ type_input|default:'text' }}" name="valeur" value="{{ valeur }}" autofocus onfocus="this.select()" aria-label="{{ label }}">{% endif %}
+  <button class="btn prim petit">OK</button>
+  <button class="btn petit" type="button" hx-get="{% url 'editer' cle obj.pk champ %}?annuler=1" hx-target="closest form" hx-swap="outerHTML">Annuler</button>
+  {% if erreur %}<div class="erreur">{{ erreur }}</div>{% endif %}
+</form>

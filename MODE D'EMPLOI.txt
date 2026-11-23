@@ -1,0 +1,140 @@
+﻿CAR PLUS — MODE D'EMPLOI
+========================
+
+Logiciel de gestion du garage, 100 % local : il fonctionne SANS Internet,
+sur l'ordinateur du garage et sur la tablette (par le routeur Wi-Fi).
+
+
+1. INSTALLATION (une seule fois, sur l'ordinateur du garage)
+------------------------------------------------------------
+a) Si le dossier CARPLUS contient un dossier « python » (version préparée par
+   le concepteur), il n'y a RIEN à installer. Sinon, installer Python 3.13
+   (python.org) en cochant « Add python.exe to PATH ».
+b) Copier ce dossier CARPLUS sur l'ordinateur, par exemple dans C:\CARPLUS
+   (pas sur le Bureau ni dans « Téléchargements »).
+c) Double-cliquer sur « 1-INSTALLER.bat ».
+d) Lancer « 2-LANCER CAR PLUS.bat » : à la première ouverture, le patron
+   saisit les informations du garage et crée LUI-MÊME son compte.
+
+
+2. UTILISATION CHAQUE JOUR
+--------------------------
+- Le matin : double-cliquer sur « 2-LANCER CAR PLUS.bat ».
+  Une fenêtre noire s'ouvre : NE PAS LA FERMER pendant la journée.
+  Le logiciel s'ouvre tout seul dans le navigateur.
+- La première fois, Windows demande d'autoriser Python sur le réseau :
+  cocher « Réseaux privés » et cliquer sur « Autoriser l'accès ».
+  Sans cela, la tablette ne pourra pas se connecter.
+- Le soir : fermer la fenêtre noire. Une sauvegarde est faite
+  automatiquement à chaque lancement.
+
+
+3. SUR LA TABLETTE
+------------------
+- La tablette doit être connectée au Wi-Fi du routeur du garage.
+- Ouvrir Chrome et taper l'adresse affichée dans la fenêtre noire,
+  par exemple :  http://192.168.1.10:8000
+- Menu de Chrome (⋮) > « Ajouter à l'écran d'accueil » :
+  le logiciel s'ouvre ensuite comme une application.
+- Conseil : dans le routeur, réserver une adresse fixe pour l'ordinateur
+  du garage, pour que l'adresse ne change jamais.
+
+
+4. CRÉER LES COMPTES DES EMPLOYÉS
+---------------------------------
+Menu « Utilisateurs » > « Ajouter » : nom + mot de passe,
+puis dans « Groupes », choisir le rôle :
+- Patron      : voit et modifie tout.
+- Caisse      : clients, véhicules, réparations, caisse, dépenses.
+- Mécanicien  : ses réparations uniquement, SANS les prix ni l'argent.
+
+
+5. LES FONCTIONS PRINCIPALES
+----------------------------
+- Recherche (barre en haut, ou Ctrl+K) : plaque, nom, téléphone,
+  n° de réparation, dépense… et aussi les menus (taper « caisse »).
+- Modifier directement : cliquer sur une valeur, la changer, « OK ».
+  Chaque modification est gardée dans « Historique des modifications ».
+- Réception véhicule : crée l'ordre de réparation. Ajouter les photos
+  des dégâts (compressées automatiquement).
+- Réparation : pièces, main-d'œuvre, statut, paiements, achats de pièces
+  avec photo de la facture. Impression : OR, devis, facture, rapport client.
+- Statut « Prêt à livrer » ou « Devis à valider » : le client est ajouté
+  dans « À contacter » le jour même.
+- « Livrer le véhicule » : VOUS choisissez la date de retour du client
+  (et, s'il y a lieu, la date de relance des travaux refusés ou du paiement).
+  Laissez vide si rien n'est prévu : le logiciel ne choisit aucune date seul.
+- À contacter : liste du jour, bouton WhatsApp avec le message déjà écrit
+  (Internet nécessaire à ce moment-là sur la tablette), « Contacté ✓ »,
+  ou « Reporter » à la date que vous choisissez. Cliquez sur une date
+  ou un texte pour le modifier.
+  Pour une société : alerte pour tous ses véhicules en une fois.
+- Caisse : argent entré et sorti par jour, semaine, mois, année.
+  « Caisse rapide » pour une petite entrée ou sortie.
+- Dépenses : avec facture (photo obligatoire) ou sans facture
+  (bon interne numéroté, ce n'est PAS une facture).
+- Paramètres : nom, adresse, NIF, STAT et pied de page des factures.
+
+
+6. SAUVEGARDE (TRÈS IMPORTANT)
+------------------------------
+- « 3-SAUVEGARDER.bat » crée une copie complète (données + photos)
+  dans le dossier « sauvegardes ».
+- Chaque semaine : copier le dernier fichier .zip sur une clé USB
+  ou un disque externe, et le ranger hors du garage.
+- En cas de panne : réinstaller sur un autre ordinateur (étapes 1 a-c),
+  puis « 4-RESTAURER.bat » avec le fichier .zip.
+
+
+7. DÉMONSTRATION (facultatif)
+-----------------------------
+Pour montrer le logiciel avec des exemples, sur une installation d'essai
+uniquement, dans le dossier CARPLUS :
+   venv\Scripts\python manage.py donnees_demo
+(Ne jamais le faire sur l'installation réelle du garage.)
+
+8. NOUVEAU (version 1.1) : CARNET DE VISITE ET D'ENTRETIEN
+---------------------------------------------------------
+- Réception en UN SEUL écran : tapez la plaque. Si le véhicule est connu,
+  son historique s'affiche (dernière visite, entretiens à faire, problèmes
+  qui reviennent, travaux refusés). S'il est nouveau, on saisit le véhicule
+  et le propriétaire sur la même page.
+- Fiche de visite : diagnostic, cause trouvée, travaux réalisés, conseillé
+  pour plus tard, travaux REFUSÉS ou REPORTÉS par le client et le RISQUE
+  s'ils ne sont pas faits. Ces points sont rappelés à chaque visite suivante.
+- Notes de la visite : chaque note est datée avec le nom de son auteur.
+- Parties touchées (freins, train avant…) : le logiciel signale quand la même
+  partie revient, ou quand une pièce a déjà été changée (pensez à la garantie).
+- Lien entre pannes : « le même problème revient », « conséquence d'un problème
+  précédent », « dégât causé par un travail refusé », « retour sous garantie ».
+- Carnet d'entretien : pour chaque entretien fait (vidange, courroie…), VOUS
+  indiquez quand le client doit revenir : une date et/ou un kilométrage.
+  Vous pouvez changer cette date à tout moment (cliquer dessus).
+  Le logiciel vous PRÉVIENT seulement : il ajoute le client dans « À contacter »
+  quand la date approche, ou quand le kilométrage estimé du véhicule
+  (calculé d'après ses visites) approche du kilométrage choisi.
+- Types d'entretien (menu Administration) : la liste des noms d'entretien,
+  modifiable par le patron.
+- Temps de travail : chaque mécanicien démarre/arrête son chronomètre.
+- À la livraison : dates de retour et de relance choisies par vous.
+- Clients inactifs et campagnes (ex. tous les véhicules de plus de 5 ans).
+- Paramètres (réglables par le patron) : prévenir combien de jours ou de km
+  avant la date choisie, au bout de combien de jours une réparation est
+  « en retard », après combien de mois un client est « inactif ».
+
+
+9. METTRE À JOUR LE LOGICIEL (sans perdre les données)
+-----------------------------------------------------
+- Le développeur envoie un fichier « CARPLUS_MAJ_x.y.zip » (par Internet ou clé USB).
+- Laissez-le dans « Téléchargements » ou sur la clé USB : NE PAS le décompresser.
+- Fermez la fenêtre noire de CAR PLUS, puis double-cliquez sur « 6-METTRE A JOUR.bat ».
+  Le logiciel trouve tout seul le fichier, fait une sauvegarde complète, remplace
+  le programme et met la base à jour. Les clients, véhicules, photos et la caisse
+  ne sont jamais touchés.
+- Relancez « 2-LANCER CAR PLUS.bat ». La version installée est écrite en bas du menu.
+
+
+10. APPARENCE : MODE CLAIR / SOMBRE
+-----------------------------------
+En haut à droite, trois boutons : soleil (clair), écran (comme l'appareil),
+lune (sombre). Le choix est gardé sur chaque ordinateur ou tablette.
