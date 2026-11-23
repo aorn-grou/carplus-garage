@@ -827,9 +827,21 @@ def premier_demarrage(request):
     gform = GarageForm(request.POST or None, instance=p, prefix="g",
                        initial={k: v for k, v in deja.items() if not getattr(p, k) or (k == "prochain_numero_facture" and p.prochain_numero_facture == 1)})
     gform.fields["prochain_numero_facture"].help_text = "Si vous avez déjà des factures papier (ex. FAC-000017), mettez 18."
-    uform = UserCreationForm(request.POST or None, prefix="u")
+    class CompteForm(UserCreationForm):
+        def clean_username(self):
+            brut = self.data.get(self.add_prefix("username"), "")
+            if " " in brut.strip():
+                raise ValidationError("Pas d'espace dans le nom d'utilisateur. Exemple : mr.koto ou tahirsoa.")
+            return super().clean_username()
+
+        def _post_clean(self):
+            super()._post_clean()
+            brut = self.data.get(self.add_prefix("username"), "")
+            if " " in brut.strip() and "username" in self.errors:
+                self.errors["username"] = self.error_class(["Pas d'espace dans le nom d'utilisateur. Exemple : mr.koto ou tahirsoa."])
+    uform = CompteForm(request.POST or None, prefix="u")
     uform.fields["username"].label = "Nom d'utilisateur du patron"
-    uform.fields["username"].help_text = "Ex. : patron, ou votre prénom. Lettres et chiffres."
+    uform.fields["username"].help_text = "Un seul mot, SANS ESPACE. Ex. : patron, tahirsoa, mr.koto (lettres, chiffres, . - _ @ +)."
     if request.method == "POST" and gform.is_valid() and uform.is_valid():
         with transaction.atomic():
             for r in ROLES:

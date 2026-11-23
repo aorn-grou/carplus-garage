@@ -426,3 +426,12 @@ class FactureGarageTests(Base):
         r = self.client.get(f"/atelier/{o.pk}/imprimer/?doc=depenses")
         self.assertContains(r, "ÉTAT DE DÉPENSE")
         self.assertContains(r, "Deux cent trente mille ariary")
+
+
+class NomUtilisateurTests(TestCase):
+    def test_espace_message_clair(self):
+        r = self.client.post("/premier-demarrage/", {"g-nom": "CAR SERVICE PLUS", "g-prochain_numero_facture": 18,
+                                                     "u-username": "Mr-Tahirsoa Admin1.8", "u-password1": "Garage-2026!x",
+                                                     "u-password2": "Garage-2026!x"})
+        self.assertContains(r, "Pas d&#x27;espace dans le nom d&#x27;utilisateur")
+        self.assertFalse(User.objects.exists())
