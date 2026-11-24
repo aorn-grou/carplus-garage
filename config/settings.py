@@ -4,6 +4,12 @@ import secrets
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Bibliothèques livrées avec le programme (ex. Excel) : marchent aussi après une mise à jour automatique
+import sys as _sys
+VENDOR = BASE_DIR / "garage" / "vendor"   # dans « garage » : toujours copié par la mise à jour automatique
+if str(VENDOR) not in _sys.path:
+    _sys.path.insert(0, str(VENDOR))
 DATA_DIR = BASE_DIR / "donnees"          # base de données + photos
 DATA_DIR.mkdir(exist_ok=True)
 

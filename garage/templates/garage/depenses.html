@@ -1,6 +1,6 @@
 {% extends "garage/base.html" %}{% load carplus %}{% block titre %}Dépenses{% endblock %}
 {% block contenu %}
-<div class="entete"><div><h1><span class="pic-titre grand t-rose">{% icone "receipt" %}</span> Dépenses</h1><div class="muted">Total affiché : <b>{{ total|ar }}</b></div></div><a class="btn prim" href="{% url 'depense_nouvelle' %}">{% icone "plus" %} Nouvelle dépense</a></div>
+<div class="entete"><div><h1><span class="pic-titre grand t-rose">{% icone "receipt" %}</span> Dépenses</h1><div class="muted">Total affiché : <b>{{ total|ar }}</b></div></div><div><a class="btn prim" href="{% url 'depense_nouvelle' %}">{% icone "plus" %} Nouvelle dépense</a> <a class="btn" href="{% url 'excel' %}?exporter=depenses">{% icone "arrow-up-right" %} Exporter Excel</a></div></div>
 <div class="onglets"><a href="?" class="{% if not facture %}actif{% endif %}">Toutes</a><a href="?facture=oui" class="{% if facture == 'oui' %}actif{% endif %}">Avec facture</a><a href="?facture=non" class="{% if facture == 'non' %}actif{% endif %}">Sans facture</a></div>
 <form class="no-print" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><input type="hidden" name="facture" value="{{ facture|default:'' }}">
 <select name="categorie" style="max-width:260px" onchange="this.form.submit()"><option value="">Toutes les catégories</option>{% for c, n in categories %}<option value="{{ c }}" {% if categorie == c %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></form>

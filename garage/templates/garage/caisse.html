@@ -1,7 +1,7 @@
 {% extends "garage/base.html" %}{% load carplus %}{% block titre %}Caisse{% endblock %}
 {% block contenu %}
 <div class="entete"><div><h1><span class="pic-titre grand t-vert">{% icone "wallet" %}</span> Caisse</h1><div class="muted">{{ libelle }}</div></div>
-<div style="display:flex;gap:6px;align-items:center"><a class="btn petit" href="?periode={{ periode }}&date={{ prec|date:'Y-m-d' }}" aria-label="Période précédente">◀</a><a class="btn petit" href="?periode={{ periode }}">Aujourd'hui</a><a class="btn petit" href="?periode={{ periode }}&date={{ suiv|date:'Y-m-d' }}" aria-label="Période suivante">▶</a></div></div>
+<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><a class="btn petit" href="{% url 'excel' %}?exporter=caisse">{% icone "arrow-up-right" %} Exporter Excel</a><a class="btn petit" href="?periode={{ periode }}&date={{ prec|date:'Y-m-d' }}" aria-label="Période précédente">◀</a><a class="btn petit" href="?periode={{ periode }}">Aujourd'hui</a><a class="btn petit" href="?periode={{ periode }}&date={{ suiv|date:'Y-m-d' }}" aria-label="Période suivante">▶</a></div></div>
 <div class="onglets">{% for code, nom in periodes %}<a href="?periode={{ code }}{% if date_ref %}&date={{ date_ref }}{% endif %}" class="{% if periode == code %}actif{% endif %}">{{ nom }}</a>{% endfor %}</div>
 <div class="grille g3" style="margin-bottom:16px">
 <div class="stat vert"><div class="v">{{ total_e|ar }}</div><div class="l">Argent entré</div></div>

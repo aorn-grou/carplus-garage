@@ -145,6 +145,16 @@ lune (sombre). Le choix est gardé sur chaque ordinateur ou tablette.
 - « Créer une sauvegarde » : copie complète, téléchargeable ensuite.
 - « Restaurer » en cas de problème : choisir le fichier .zip, taper RESTAURER.
   Les données d'avant sont gardées dans une copie de sécurité.
-- « Exporter (Excel) » : clients, véhicules, réparations, caisse.
-- « Importer depuis Excel » : anciens clients et véhicules (fichier CSV).
-  Un « Modèle à remplir » est proposé à côté de chaque bouton.
+- Excel : voir la partie 12.
+
+
+12. IMPORTER / EXPORTER EXCEL (menu Argent : patron et caisse)
+-----------------------------------------------------------------
+- EXPORTER : un clic sur Clients, Véhicules, Réparations, Caisse ou Dépenses.
+  Le fichier Excel (.xlsx) se télécharge, prêt à ouvrir dans Excel.
+  Boutons « Exporter Excel » aussi en haut des listes.
+- IMPORTER : choisir un fichier Excel (.xlsx) ou CSV de clients ou de
+  véhicules, puis « Importer ». La 1re ligne = titres des colonnes.
+  « Modèle Excel à remplir » donne un fichier vide avec les bonnes colonnes.
+- Les doublons sont ignorés. Une sauvegarde est faite avant chaque import.
+- Dans les deux sens : exporter, compléter dans Excel, puis réimporter.

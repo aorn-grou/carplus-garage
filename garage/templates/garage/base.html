@@ -28,6 +28,7 @@
     <div class="sep">Argent</div>
     <a class="nav {% if u == 'caisse' %}actif{% endif %}" href="{% url 'caisse' %}"><span class="pic-nav" style="--c:#10b981">{% icone "wallet" %}</span><span class="texte">Caisse</span></a>
     <a class="nav {% if u == 'depenses' or u == 'depense_nouvelle' or u == 'depense_detail' %}actif{% endif %}" href="{% url 'depenses' %}"><span class="pic-nav" style="--c:#fb7185">{% icone "receipt" %}</span><span class="texte">Dépenses</span></a>
+    <a class="nav {% if u == 'excel' %}actif{% endif %}" href="{% url 'excel' %}"><span class="pic-nav" style="--c:#22c55e">{% icone "file-text" %}</span><span class="texte">Importer / Exporter Excel</span></a>
     {% endif %}
     {% if est_patron %}
     <div class="sep">Administration</div>

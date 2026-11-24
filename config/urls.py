@@ -51,6 +51,7 @@ urlpatterns = [
     path("historique/", v.journal, name="journal"),
     path("parametres/", v.parametres, name="parametres"),
     path("donnees/", v.donnees_page, name="donnees"),
+    path("excel/", v.excel_page, name="excel"),
     # Photos : servies uniquement aux utilisateurs connectés (contrôle par le middleware)
     re_path(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT}),
 ]

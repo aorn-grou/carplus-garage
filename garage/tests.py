@@ -515,3 +515,69 @@ class DonneesTests(Base):
         r = self.client.post("/donnees/", {"action": "restaurer", "confirmer": "non",
                                           "fichier": SimpleUploadedFile("x.zip", buf.getvalue())}, follow=True)
         self.assertContains(r, "tapez le mot RESTAURER")
+
+
+class ExcelTests(Base):
+    def setUp(self):
+        super().setUp()
+        import tempfile as _t
+        from pathlib import Path as _P
+        from . import donnees as D
+        self._dossier = D.DOSSIER
+        D.DOSSIER = _P(_t.mkdtemp())
+
+    def tearDown(self):
+        from . import donnees as D
+        shutil.rmtree(D.DOSSIER, ignore_errors=True)
+        D.DOSSIER = self._dossier
+
+    def _xlsx(self, lignes):
+        import io as _io
+        from openpyxl import Workbook
+        wb = Workbook(); ws = wb.active
+        for l in lignes:
+            ws.append(l)
+        b = _io.BytesIO(); wb.save(b)
+        return b.getvalue()
+
+    def test_acces_caisse_oui_mecanicien_non(self):
+        self.client.login(username="caisse", password="secret123")
+        self.assertEqual(self.client.get("/excel/").status_code, 200)
+        self.client.login(username="meca", password="secret123")
+        self.assertEqual(self.client.get("/excel/").status_code, 403)
+
+    def test_exports_xlsx(self):
+        import io as _io
+        from openpyxl import load_workbook
+        OrdreReparation.objects.create(vehicule=self.v, client=self.cli, probleme="Vidange")
+        Paiement.objects.create(montant=5000, libelle="x")
+        for q in ("clients", "vehicules", "reparations", "caisse", "depenses"):
+            r = self.client.get(f"/excel/?exporter={q}")
+            self.assertEqual(r.status_code, 200, q)
+            self.assertIn(".xlsx", r["Content-Disposition"])
+            load_workbook(_io.BytesIO(r.content))
+        wb = load_workbook(_io.BytesIO(self.client.get("/excel/?exporter=vehicules").content))
+        valeurs = [c for l in wb.active.iter_rows(values_only=True) for c in l]
+        self.assertIn("1234TBA", valeurs)
+
+    def test_modele_puis_import_xlsx(self):
+        import io as _io
+        from openpyxl import load_workbook
+        r = self.client.get("/excel/?modele=clients")
+        self.assertEqual(r.status_code, 200)
+        load_workbook(_io.BytesIO(r.content))
+        f = self._xlsx([["Type", "Nom", "Téléphone"], ["Société", "Transport Mada", "0340000002"], ["Particulier", "Rakoto", "0341234567"]])
+        r = self.client.post("/excel/", {"action": "importer_clients", "fichier": SimpleUploadedFile("c.xlsx", f)}, follow=True)
+        self.assertContains(r, "1 ligne(s) importée(s)")
+        self.assertEqual(Client.objects.get(nom="Transport Mada").type, "societe")
+        f = self._xlsx([["Immatriculation", "Marque", "Modèle", "Année", "Propriétaire"], ["5555 TBC", "Mazda", "BT-50", 2019, "Transport Mada"]])
+        r = self.client.post("/excel/", {"action": "importer_vehicules", "fichier": SimpleUploadedFile("v.xlsx", f)}, follow=True)
+        self.assertContains(r, "1 ligne(s) importée(s)")
+        self.assertEqual(Vehicule.objects.get(immatriculation="5555TBC").annee, 2019)
+
+    def test_aller_retour_sans_doublon(self):
+        contenu = self.client.get("/excel/?exporter=clients").content
+        avant = Client.objects.count()
+        r = self.client.post("/excel/", {"action": "importer_clients", "fichier": SimpleUploadedFile("c.xlsx", contenu)}, follow=True)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(Client.objects.count(), avant)

@@ -1,6 +1,6 @@
 {% extends "garage/base.html" %}{% load carplus %}{% block titre %}Véhicules{% endblock %}
 {% block contenu %}
-<div class="entete"><h1><span class="pic-titre grand t-bleu">{% icone "car" %}</span> Registre des véhicules</h1><a class="btn prim" href="{% url 'vehicule_nouveau' %}">{% icone "plus" %} Nouveau véhicule</a></div>
+<div class="entete"><h1><span class="pic-titre grand t-bleu">{% icone "car" %}</span> Registre des véhicules</h1><div><a class="btn prim" href="{% url 'vehicule_nouveau' %}">{% icone "plus" %} Nouveau véhicule</a> <a class="btn" href="{% url 'excel' %}?exporter=vehicules">{% icone "arrow-up-right" %} Exporter Excel</a> <a class="btn" href="{% url 'excel' %}#id_iv">{% icone "arrow-down-left" %} Importer Excel</a></div></div>
 <div class="onglets"><a href="?" class="{% if not categorie %}actif{% endif %}">Tous</a>{% for code, nom in categories %}<a href="?categorie={{ code }}" class="{% if categorie == code %}actif{% endif %}">{{ nom }}s</a>{% endfor %}</div>
 <form class="carte no-print" method="get" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end">
 <input type="hidden" name="categorie" value="{{ categorie|default:'' }}">

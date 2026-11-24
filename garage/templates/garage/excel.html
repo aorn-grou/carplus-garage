@@ -1,0 +1,26 @@
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Importer / Exporter Excel{% endblock %}
+{% block contenu %}
+<div class="entete"><div><h1><span class="pic-titre grand t-vert">{% icone "file-text" %}</span> Importer / Exporter Excel</h1>
+<div class="muted">Passez vos données du logiciel vers Excel, et d'Excel vers le logiciel.</div></div></div>
+
+<div class="carte coul-bleu"><h2><span class="pic-titre t-bleu">{% icone "arrow-up-right" %}</span> Exporter vers Excel</h2>
+<p>Un clic : le fichier Excel (.xlsx) se télécharge, avec les colonnes prêtes, les filtres et les montants en ariary.</p>
+<div class="tuiles">{% for q, nom, ic, coul, n in exports %}
+<a class="tuile t-{{ coul }}" href="?exporter={{ q }}"><span class="pic-titre t-{{ coul }}">{% icone ic %}</span><b>{{ nom }}</b><span>{{ n }} ligne{{ n|pluralize }} · .xlsx</span></a>{% endfor %}</div></div>
+
+<div class="carte coul-violet"><h2><span class="pic-titre t-violet">{% icone "arrow-down-left" %}</span> Importer depuis Excel</h2>
+<p>Ajoutez d'un coup vos clients et véhicules déjà notés dans Excel. Acceptés : <b>.xlsx</b> (Excel) et <b>.csv</b>. La première ligne doit contenir les titres des colonnes. Les doublons sont ignorés, et une sauvegarde est faite avant chaque import.</p>
+<div class="grille g2">
+<form method="post" enctype="multipart/form-data" class="formulaire import-bloc">{% csrf_token %}<input type="hidden" name="action" value="importer_clients">
+<h3><span class="pic-titre t-vert">{% icone "users" %}</span> Clients et sociétés</h3>
+<p class="small muted">Colonnes reconnues : Nom (obligatoire), Type, Téléphone, WhatsApp, Facebook, E-mail, Adresse, NIF, STAT, Contact.</p>
+<div class="champ"><label for="id_ic">Fichier Excel des clients</label><input id="id_ic" type="file" name="fichier" accept=".xlsx,.xlsm,.csv" required></div>
+<button class="btn prim">{% icone "arrow-down-left" %} Importer les clients</button> <a class="btn petit" href="?modele=clients">{% icone "file-text" %} Modèle Excel à remplir</a></form>
+<form method="post" enctype="multipart/form-data" class="formulaire import-bloc">{% csrf_token %}<input type="hidden" name="action" value="importer_vehicules">
+<h3><span class="pic-titre t-bleu">{% icone "car" %}</span> Véhicules</h3>
+<p class="small muted">Colonnes reconnues : Immatriculation, Marque, Modèle, Propriétaire (obligatoires), Catégorie, Année, VIN, Kilométrage, Téléphone. Un propriétaire inconnu est créé automatiquement.</p>
+<div class="champ"><label for="id_iv">Fichier Excel des véhicules</label><input id="id_iv" type="file" name="fichier" accept=".xlsx,.xlsm,.csv" required></div>
+<button class="btn prim">{% icone "arrow-down-left" %} Importer les véhicules</button> <a class="btn petit" href="?modele=vehicules">{% icone "file-text" %} Modèle Excel à remplir</a></form>
+</div></div>
+<p class="small muted">Astuce : exportez d'abord la liste, modifiez ou complétez-la dans Excel, puis réimportez-la. Les lignes déjà présentes dans le logiciel ne seront pas dupliquées.</p>
+{% endblock %}

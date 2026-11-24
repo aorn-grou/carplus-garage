@@ -70,6 +70,7 @@ MENUS = [
     ("Clients inactifs", "rappels", "inactifs fidélisation relance anciens clients", None),
     ("Campagne (véhicules de plus de 5 ans…)", "vehicules", "campagne promotion offre ciblée âge", None),
     ("Historique des modifications", "journal", "historique journal modifications", (PATRON,)),
+    ("Importer / Exporter Excel", "excel", "excel importer import exporter export xlsx tableur csv", ARGENT),
     ("Sauvegarde et données", "donnees", "sauvegarde sauvegarder restaurer restauration exporter export importer import excel csv données problème", (PATRON,)),
     ("Paramètres du garage", "parametres", "paramètres parametres nif stat logo facture", (PATRON,)),
 ]
@@ -931,3 +932,50 @@ def donnees_page(request):
 def zipfile_err():
     import zipfile
     return zipfile.BadZipFile
+
+
+# ---------------------------------------------------------------- Excel : importer / exporter (patron et caisse)
+EXPORTS = [("clients", "Clients et sociétés", "users", "vert"), ("vehicules", "Véhicules", "car", "bleu"),
+           ("reparations", "Réparations et factures", "wrench", "jaune"), ("caisse", "Caisse (entrées et sorties)", "wallet", "turquoise"),
+           ("depenses", "Dépenses", "receipt", "rose")]
+
+
+@exige(*ARGENT)
+def excel_page(request):
+    from . import donnees as D
+    from .models import Client, Depense, OrdreReparation, Paiement, Vehicule
+    quoi = request.GET.get("exporter")
+    if quoi:
+        if quoi not in D.TABLES:
+            raise PermissionDenied
+        r = HttpResponse(D.exporter_excel(quoi),
+                         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        r["Content-Disposition"] = f'attachment; filename="carplus_{quoi}_{timezone.localdate():%Y-%m-%d}.xlsx"'
+        return r
+    if request.GET.get("modele") in D.MODELES:
+        nom, contenu = D.modele(request.GET["modele"])
+        r = HttpResponse(contenu, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        r["Content-Disposition"] = f'attachment; filename="{nom}"'
+        return r
+    if request.method == "POST":
+        action, fichier = request.POST.get("action"), request.FILES.get("fichier")
+        if action not in ("importer_clients", "importer_vehicules"):
+            raise PermissionDenied
+        if not fichier:
+            messages.error(request, "Choisissez un fichier Excel (.xlsx) ou CSV.")
+        else:
+            D.creer_sauvegarde(D.DOSSIER / "avant_import")
+            try:
+                crees, ignores = (D.importer_clients if action == "importer_clients" else D.importer_vehicules)(fichier)
+            except Exception as e:
+                messages.error(request, f"Fichier illisible ({e}). Utilisez un fichier Excel .xlsx, ou le « Modèle à remplir ».")
+            else:
+                Journal.objects.create(utilisateur=request.user, objet="import", objet_id=0, champ=action,
+                                       nouvelle=f"{fichier.name} : {crees} ligne(s)")
+                messages.success(request, f"{crees} ligne(s) importée(s) depuis « {fichier.name} »."
+                                 + (f" {len(ignores)} ignorée(s) : " + " ; ".join(ignores[:8]) if ignores else ""))
+        return redirect(request.POST.get("next") or "excel")
+    comptes = {"clients": Client.objects.count(), "vehicules": Vehicule.objects.count(),
+               "reparations": OrdreReparation.objects.count(), "caisse": Paiement.objects.count() + Depense.objects.count(),
+               "depenses": Depense.objects.count()}
+    return render(request, "garage/excel.html", {"exports": [(q, n, i, c, comptes[q]) for q, n, i, c in EXPORTS]})

@@ -1,6 +1,6 @@
 {% extends "garage/base.html" %}{% load carplus %}{% block titre %}Réparations{% endblock %}
 {% block contenu %}
-<div class="entete"><h1><span class="pic-titre grand t-jaune">{% icone "wrench" %}</span> Réparations (atelier)</h1><a class="btn rouge" href="{% url 'ordre_nouveau' %}">{% icone "plus" %} Réception d'un véhicule</a></div>
+<div class="entete"><h1><span class="pic-titre grand t-jaune">{% icone "wrench" %}</span> Réparations (atelier)</h1><div><a class="btn rouge" href="{% url 'ordre_nouveau' %}">{% icone "plus" %} Réception d'un véhicule</a>{% if voit_argent %} <a class="btn" href="{% url 'excel' %}?exporter=reparations">{% icone "arrow-up-right" %} Exporter Excel</a>{% endif %}</div></div>
 <div class="kanban">
 {% for code, nom, liste in colonnes %}<div class="col"><h3><span>{{ nom }}</span><span>{{ liste|length }}</span></h3>
 {% for o in liste %}<a class="ticket" href="{{ o.get_absolute_url }}" style="{% if code == 'pret' %}border-left-color:var(--vert){% elif code == 'attente_pieces' or code == 'devis' %}border-left-color:var(--orange){% endif %}">
