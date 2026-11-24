@@ -324,3 +324,6 @@ h1{display:flex;align-items:center;gap:12px}
 @media (prefers-reduced-motion: reduce){.contenu > *,.badge{animation:none}}
 .tuile:nth-child(1) .ic{color:var(--t-vert)} .tuile:nth-child(2) .ic{color:var(--t-bleu)}
 .tuile:nth-child(3) .ic{color:var(--t-jaune)} .tuile:nth-child(4) .ic{color:var(--t-turquoise)}
+.barre-retour{margin:-6px 0 12px}
+.btn.retour .ic{color:var(--t-bleu)}
+.btn.retour:hover .ic{transform:translateX(-3px)}

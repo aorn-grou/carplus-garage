@@ -1,6 +1,6 @@
-{% extends "garage/base.html" %}{% block titre %}Nouvelle dépense{% endblock %}
+{% extends "garage/base.html" %}{% load carplus %}{% block titre %}Nouvelle dépense{% endblock %}
 {% block contenu %}
-<div class="entete"><h1>Nouvelle dépense</h1></div>
+<div class="entete"><h1><span class="pic-titre grand t-rose">{% icone "receipt" %}</span> Nouvelle dépense</h1></div>
 <div class="carte" style="max-width:760px"><form method="post" enctype="multipart/form-data" class="formulaire">{% csrf_token %}
 {{ form.non_field_errors }}
 <div class="champ"><label style="display:flex;gap:8px;align-items:center;font-size:1rem">{{ form.avec_facture }} J'ai une facture (photo obligatoire)</label></div>

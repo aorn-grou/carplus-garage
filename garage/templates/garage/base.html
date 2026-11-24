@@ -60,6 +60,9 @@
       </div>
     </header>
     <main class="contenu" id="contenu" tabindex="-1">
+      {% if request.resolver_match.url_name != "accueil" %}<div class="barre-retour no-print">
+        <a class="btn petit retour" href="{% url 'accueil' %}" onclick="if(document.referrer && document.referrer.indexOf(location.host) !== -1 && history.length > 1){history.back();return false;}" aria-label="Revenir à la page précédente">{% icone "arrow-left" %} Retour</a>
+      </div>{% endif %}
       {% if messages %}<ul class="messages">{% for m in messages %}<li class="{{ m.tags }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
       {% block contenu %}{% endblock %}
     </main>

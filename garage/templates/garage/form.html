@@ -4,5 +4,5 @@
 <div class="carte" style="max-width:760px">
 <form method="post" enctype="multipart/form-data" class="formulaire">{% csrf_token %}
 {{ form.as_p }}
-<button class="btn prim">Enregistrer</button> <a class="btn" href="javascript:history.back()">Annuler</a>
+<button class="btn prim">Enregistrer</button> <a class="btn" href="{% url 'accueil' %}" onclick="if(history.length > 1){history.back();return false;}">Annuler</a>
 </form></div>{% endblock %}
