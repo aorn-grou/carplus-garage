@@ -549,6 +549,7 @@ def facture(request, pk):
         "o": o, "p": p, "doc": doc, "titre": titre, "numero": numero, "date": date,
         "lignes": o.lignes.all(), "depenses": depenses, "total_dep": total_dep,
         "lettres": montant_en_lettres(total_dep if doc == "depenses" else o.total),
+        "lettres_reste": montant_en_lettres(max(o.reste, 0)) if o else "",
     })
 
 

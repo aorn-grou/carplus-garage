@@ -56,4 +56,6 @@ def en_lettres(n):
 
 def montant_en_lettres(n, devise="ariary"):
     t = en_lettres(n)
-    return f"{t[0].upper()}{t[1:]} {devise}"
+    # « un million d'ariary », « deux milliards d'ariary » (règle du français)
+    sep = " d'" if t.endswith(("million", "millions", "milliard", "milliards")) and devise[:1] in "aeiouy" else (" de " if t.endswith(("million", "millions", "milliard", "milliards")) else " ")
+    return f"{t[0].upper()}{t[1:]}{sep}{devise}"

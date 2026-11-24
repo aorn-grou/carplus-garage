@@ -581,3 +581,23 @@ class ExcelTests(Base):
         r = self.client.post("/excel/", {"action": "importer_clients", "fichier": SimpleUploadedFile("c.xlsx", contenu)}, follow=True)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(Client.objects.count(), avant)
+
+
+class FactureFinitionsTests(Base):
+    def test_million_d_ariary(self):
+        from .lettres import montant_en_lettres as m
+        self.assertEqual(m(1000000), "Un million d'ariary")
+        self.assertEqual(m(2500000), "Deux millions cinq cent mille ariary")
+
+    def test_nb_reste_en_lettres_et_facture_payee(self):
+        from .models import Parametres
+        p = Parametres.get(); p.rib = "00011 00000 123"; p.banque = "MCB"; p.save()
+        o = OrdreReparation.objects.create(vehicule=self.v, client=self.cli, probleme="x", forfait=180000)
+        o.etablir_facture()
+        Paiement.objects.create(ordre=o, montant=100000, libelle="Acompte")
+        r = self.client.get(f"/atelier/{o.pk}/imprimer/")
+        self.assertContains(r, "MGA soit : « Quatre-vingt mille ariary »")
+        Paiement.objects.create(ordre=o, montant=80000, libelle="Solde")
+        r = self.client.get(f"/atelier/{o.pk}/imprimer/")
+        self.assertContains(r, "FACTURE PAYÉE")
+        self.assertNotContains(r, "Veuillez nous transférer")
